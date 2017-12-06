@@ -5,7 +5,7 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 80,
-	ENEMY_SPEED: 40,
+	ENEMY_SPEED: 50,
 	EPSILON: 2,
 	STAGE: 0,
 
@@ -61,7 +61,7 @@ TopDownGame.Game.prototype = {
 
 		// FOG
 
-		this.fog = this.game.add.sprite(0, 0, 'none');
+		this.fog = this.game.add.sprite(0, 0, 'fog');
 		this.fog.anchor.setTo(0.5);
 	},
 
@@ -333,7 +333,7 @@ TopDownGame.Game.prototype = {
 
 	createEnemies: function() {
 		this.enemies = this.game.add.group();
-		this.behindFogGroup.add(this.enemies);
+		// this.behindFogGroup.add(this.enemies);
 		this.enemies.enableBody = true;
 	    result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
 	 
@@ -396,8 +396,14 @@ TopDownGame.Game.prototype = {
 	findTreasure: function(player, treasure) {
 		if (treasure.frame == 0) {
 			treasure.frame = 1; // open the chest
-			this.createEnemies(); // time to run!
-			this.STAGE = 1; // update game stage
+
+			this.game.time.events.add(500, function() {
+				this.createEnemies();
+				this.STAGE = 1;
+			}, this);
+
+			// this.createEnemies(); // time to run!
+			// this.STAGE = 1; // update game stage
 			player.markerQueue = []; // initialise empty queue
 		}
 	},
