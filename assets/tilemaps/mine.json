@@ -53,7 +53,7 @@
                  "name":"",
                  "properties":
                     {
-                     "sprite":"bluecup",
+                     "sprite":"treasure",
                      "type":"treasure"
                     },
                  "propertytypes":
@@ -67,6 +67,28 @@
                  "width":16,
                  "x":144,
                  "y":160
+                }, 
+                {
+                 "gid":3811,
+                 "height":16,
+                 "id":4,
+                 "name":"",
+                 "properties":
+                    {
+                     "sprite":"mummy",
+                     "type":"enemy"
+                    },
+                 "propertytypes":
+                    {
+                     "sprite":"string",
+                     "type":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":112,
+                 "y":176
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -74,7 +96,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.3",
@@ -92,6 +114,10 @@
          "tilecount":3520,
          "tileheight":16,
          "tilewidth":16
+        }, 
+        {
+         "firstgid":3521,
+         "source":"tiles.tsx"
         }],
  "tilewidth":16,
  "type":"map",
