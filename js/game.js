@@ -23,6 +23,7 @@ TopDownGame.Game.prototype = {
 		// ITEMS
 
 		this.createItems();
+		this.createTreasure();
 
 		// PLAYER
 
@@ -70,6 +71,7 @@ TopDownGame.Game.prototype = {
 
 		this.game.physics.arcade.collide(this.player, this.blockedLayer);
 		this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
+		this.game.physics.arcade.overlap(this.player, this.treasure, this.findTreasure, null, this);
 
 	},
 
@@ -78,10 +80,18 @@ TopDownGame.Game.prototype = {
 		this.items.enableBody = true;
 
 		var item;
-		result = this.findObjectsByType('treasure', this.map, 'objectsLayer');
+		result = this.findObjectsByType('items', this.map, 'objectsLayer');
 		result.forEach(function(element) {
 			this.createFromTiledObject(element, this.items);
 		}, this);
+	},
+
+	createTreasure: function() {
+		this.treasure = this.game.add.group();
+		this.treasure.enableBody = true;
+
+		result = this.findObjectsByType('treasure', this.map, 'objectsLayer');
+		this.treasure.create(result[0].x, result[0].y, 'treasure');
 	},
 
 	// find objects in a Tiled layer that contain a property called "type" equal to a certain value
@@ -110,5 +120,9 @@ TopDownGame.Game.prototype = {
 
 	collect: function(player, item) {
 		item.destroy();
+	},
+
+	findTreasure: function(player, treasure) {
+		treasure.frame = 1;
 	}
 }
