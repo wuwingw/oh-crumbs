@@ -4,7 +4,7 @@ TopDownGame.Game = function(){};
 
 TopDownGame.Game.prototype = {
 
-	PLAYER_SPEED: 100,
+	PLAYER_SPEED: 80,
 	ENEMY_SPEED: 40,
 	EPSILON: 2,
 	STAGE: 0,
@@ -42,7 +42,7 @@ TopDownGame.Game.prototype = {
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 		this.game.physics.arcade.enable(this.player);
-		this.player.body.setSize(14, 14, 1, 1);
+		this.player.body.setSize(10, 12, 3, 2);
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
@@ -80,7 +80,7 @@ TopDownGame.Game.prototype = {
 			this.player.body.velocity.y += this.PLAYER_SPEED;
 			this.player.direction = 'down';
 		}
-		if(this.cursors.left.isDown) {
+		else if(this.cursors.left.isDown) {
 			this.player.body.velocity.x -= this.PLAYER_SPEED;
 			this.player.frame = 1;
 			this.player.direction = 'left';
