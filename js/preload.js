@@ -16,12 +16,12 @@ TopDownGame.Preload.prototype = {
     this.load.tilemap('mine', 'assets/tilemaps/mine.json', null, Phaser.Tilemap.TILED_JSON);
     this.load.image('gameTiles', 'assets/images/tiles.png');
 
-    this.load.image('player', 'assets/images/player.png');
     this.load.image('crumb', 'assets/images/crumb.png');
     this.load.image('door', 'assets/images/door.png');
     this.load.image('mummy', 'assets/images/mummy.png');
     this.load.image('fog', 'assets/images/fog.png'); // the 'fog of war'
 
+    this.load.spritesheet('player', 'assets/images/player.png', 16, 16);
     this.load.spritesheet('treasure', 'assets/images/treasure.png', 16, 16);
 
     this.load.image('greencup', 'assets/images/greencup.png');

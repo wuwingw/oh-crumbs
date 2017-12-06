@@ -74,9 +74,11 @@ TopDownGame.Game.prototype = {
 		}
 		if(this.cursors.left.isDown) {
 			this.player.body.velocity.x -= this.PLAYER_SPEED;
+			this.player.frame = 1;
 		}
 		else if(this.cursors.right.isDown) {
 			this.player.body.velocity.x += this.PLAYER_SPEED;
+			this.player.frame = 0;
 		}
 
 		// FOG
