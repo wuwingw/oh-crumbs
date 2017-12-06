@@ -27,6 +27,7 @@ TopDownGame.Game.prototype = {
 		this.createItems();
 		this.createTreasure();
 		this.createDoors();
+		this.createMarkers();
 
 		// RENDERING GROUPS
 
@@ -39,7 +40,7 @@ TopDownGame.Game.prototype = {
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 		this.game.physics.arcade.enable(this.player);
-
+		this.player.direction = 'right';
 		this.game.camera.follow(this.player);
 
 		// INPUT
@@ -68,17 +69,21 @@ TopDownGame.Game.prototype = {
 
 		if(this.cursors.up.isDown) {
 			this.player.body.velocity.y -= this.PLAYER_SPEED;
+			this.player.direction = 'up';
 		}
 		else if(this.cursors.down.isDown) {
 			this.player.body.velocity.y += this.PLAYER_SPEED;
+			this.player.direction = 'down';
 		}
 		if(this.cursors.left.isDown) {
 			this.player.body.velocity.x -= this.PLAYER_SPEED;
 			this.player.frame = 1;
+			this.player.direction = 'left';
 		}
 		else if(this.cursors.right.isDown) {
 			this.player.body.velocity.x += this.PLAYER_SPEED;
 			this.player.frame = 0;
+			this.player.direction = 'right';
 		}
 
 		// FOG
@@ -102,6 +107,11 @@ TopDownGame.Game.prototype = {
 		this.game.physics.arcade.collide(this.player, this.blockedLayer);
 		this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
 		this.game.physics.arcade.overlap(this.player, this.treasure, this.findTreasure, null, this);
+
+        // markers
+        if (true) {
+            this.game.physics.arcade.overlap(this.player, this.exitMarkers, this.updateMarker, null, this);
+        }
 
 	},
 
@@ -152,6 +162,31 @@ TopDownGame.Game.prototype = {
 	    }, this);		
 	},
 
+    createMarkers: function() {
+        this.markers = this.game.add.group();
+        this.exitMarkers = this.game.add.group();
+        this.exitMarkers.enableBody = true;
+        this.forkMarkers = this.game.add.group();
+        this.forkMarkers.enableBody = true;
+        this.markers.add(this.exitMarkers);
+        this.markers.add(this.forkMarkers);
+        this.markers.enableBody = true;
+
+        result = this.findObjectsByType('exit', this.map, 'objectsLayer');
+        result.forEach(function(element){
+                this.createFromTiledObject(element, this.exitMarkers);
+        }, this);
+
+        result = this.findObjectsByType('fork', this.map, 'objectsLayer');
+        result.forEach(function(element){
+                this.createFromTiledObject(element, this.forkMarkers);
+        }, this);
+
+        // this.exitMarkers.forEach(function(element){
+        //      element.sprite = 'arrow';
+        // });
+	},
+
 	// find objects in a Tiled layer that contain a property called "type" equal to a certain value
 	findObjectsByType: function(type, map, layer) {
 		var result = new Array();
@@ -186,5 +221,17 @@ TopDownGame.Game.prototype = {
 			this.createEnemies(); // time to run!
 			this.STAGE = 1;
 		}
+	},
+
+	updateMarker: function(player, marker) {
+		console.log("yo");
+		if (player.direction == 'up')
+			marker.frame = 0;
+		else if (player.direction == 'right')
+			marker.frame = 1;
+		else if (player.direction == 'down')
+			marker.frame = 2;
+		else if (player.direction == 'left')
+			marker.frame = 3;
 	}
 }
