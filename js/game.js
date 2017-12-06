@@ -5,8 +5,8 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 100,
-	ENEMY_SPEED: 30,
-	EPSILON: 1,
+	ENEMY_SPEED: 40,
+	EPSILON: 2,
 	STAGE: 0,
 
 
@@ -141,21 +141,22 @@ TopDownGame.Game.prototype = {
 
 			this.enemies.forEach(this.moveEnemy, this);
 			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
+			this.game.physics.arcade.overlap(this.player, this.enemies, this.touchEnemy, null, this);
 
 		}
 
 	},
 
 	checkReachedMarker: function(enemy, marker) {
-		if (Math.abs(enemy.x - marker.x) + Math.abs(enemy.y - marker.y) < this.EPSILON) {
-			console.log("reached");
+		if (Math.abs(enemy.x - marker.x) < this.EPSILON && Math.abs(enemy.y - marker.y) < this.EPSILON) {
+			// console.log("reached");
 
 			// enemy has got to this marker; onto the next one
 			enemy.body.velocity.x = 0;
 			enemy.body.velocity.y = 0;
 			this.player.markerQueue.shift();
 			enemy.inRoom = !enemy.inRoom
-			console.log(enemy.inRoom);
+			// console.log(enemy.inRoom);
 
 			// if we've just left a room, use marker to decide which way to go
 			if (!enemy.inroom) {
@@ -169,10 +170,16 @@ TopDownGame.Game.prototype = {
 	moveEnemy: function(enemy) {
 		var nextMarker = this.player.markerQueue.length ? this.player.markerQueue[0] : undefined;
 
-		if (enemy.inRoom && nextMarker) {
+		if (enemy.inRoom) {
 
-			this.game.physics.arcade.moveToObject(enemy, nextMarker, this.ENEMY_SPEED);
-			this.checkReachedMarker(enemy, nextMarker);
+			if (nextMarker) {
+				// player has left room via nextMarker
+				this.game.physics.arcade.moveToObject(enemy, nextMarker, this.ENEMY_SPEED);
+				this.checkReachedMarker(enemy, nextMarker);				
+			} else {
+				// player is in same room
+				this.game.physics.arcade.moveToObject(enemy, this.player, this.ENEMY_SPEED);
+			}
 
 		} else if (!enemy.inRoom) {
 
@@ -185,8 +192,8 @@ TopDownGame.Game.prototype = {
 				this.checkReachedMarker(enemy, nextMarker);
 
 			} else if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) { 
-				console.log("touching fork");
-				if (marker.direction && (Math.abs(enemy.x - marker.x) < 2) && (Math.abs(enemy.y - marker.y)) < 2) {
+				// console.log("touching fork");
+				if (marker.direction && (Math.abs(enemy.x - marker.x) < this.EPSILON) && (Math.abs(enemy.y - marker.y)) < this.EPSILON) {
 					enemy.direction = marker.direction;
 				}
 			}, null, this)) {
@@ -202,12 +209,12 @@ TopDownGame.Game.prototype = {
 
 					if (enemy.body.blocked[enemy.direction]) {
 						// we've hit a wall
-						console.log('touching when going ' + enemy.direction);
-						console.log(enemy.lastCollisionPosition);
+						// console.log('touching when going ' + enemy.direction);
+						// console.log(enemy.lastCollisionPosition);
 						
 						if (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16) {
 							// new collision
-							console.log("new");
+							// console.log("new");
 							enemy.directionsToTry = this.directionsToTry(enemy.direction);
 						}
 
@@ -229,7 +236,7 @@ TopDownGame.Game.prototype = {
 							}
 						}
 						enemy.directionsToTry.splice(i, 1); // remove this direction
-						console.log(enemy.directionsToTry);
+						// console.log(enemy.directionsToTry);
 					}
 				}
 
@@ -379,6 +386,10 @@ TopDownGame.Game.prototype = {
 			this.STAGE = 1; // update game stage
 			player.markerQueue = []; // initialise empty queue
 		}
+	},
+
+	touchEnemy: function(player, enemy) {
+		console.log("DEAD!");
 	},
 
 	addMarkerToQueue: function(player, marker) {
