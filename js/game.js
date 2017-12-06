@@ -147,7 +147,7 @@ TopDownGame.Game.prototype = {
 
 	},
 
-	checkReachedMarker: function(enemy, marker) {
+	checkReachedMarker: function(enemy, marker, setInRoomTo) {
 		if (Math.abs(enemy.x - marker.x) < this.EPSILON && Math.abs(enemy.y - marker.y) < this.EPSILON) {
 			// console.log("reached");
 
@@ -155,7 +155,7 @@ TopDownGame.Game.prototype = {
 			enemy.body.velocity.x = 0;
 			enemy.body.velocity.y = 0;
 			this.player.markerQueue.shift();
-			enemy.inRoom = !enemy.inRoom
+			enemy.inRoom = setInRoomTo
 			// console.log(enemy.inRoom);
 
 			// if we've just left a room, use marker to decide which way to go
@@ -175,7 +175,9 @@ TopDownGame.Game.prototype = {
 			if (nextMarker) {
 				// player has left room via nextMarker
 				this.game.physics.arcade.moveToObject(enemy, nextMarker, this.ENEMY_SPEED);
-				this.checkReachedMarker(enemy, nextMarker);				
+
+				// check if we've left the room
+				this.checkReachedMarker(enemy, nextMarker, false);				
 			} else {
 				// player is in same room
 				this.game.physics.arcade.moveToObject(enemy, this.player, this.ENEMY_SPEED);
@@ -189,7 +191,8 @@ TopDownGame.Game.prototype = {
 
 			if (nextMarker && this.game.physics.arcade.overlap(enemy, nextMarker)) {
 
-				this.checkReachedMarker(enemy, nextMarker);
+				// check if we've entered a room
+				this.checkReachedMarker(enemy, nextMarker, true);
 
 			} else if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) { 
 				// console.log("touching fork");
