@@ -23,11 +23,14 @@ TopDownGame.Game.prototype = {
 		// RENDERING GROUPS
 
 		this.behindPlayerGroup = this.game.add.group();
+		this.behindFogGroup = this.game.add.group();
+		this.behindFogGroup.add(this.behindPlayerGroup);
 
 		// ITEMS
 
 		this.createItems();
 		this.createTreasure();
+		this.createDoors();
 
 		// PLAYER
 
@@ -74,11 +77,8 @@ TopDownGame.Game.prototype = {
 			this.player.body.velocity.x += this.PLAYER_SPEED;
 		}
 
-		// if(this.spaceKey.isDown) {
-		// 	this.dropCrumb(this.player.x, this.player.y);
-		// }
-
 		// FOG
+
 		this.fog.x = this.player.x;
 		this.fog.y = this.player.y;
 
@@ -110,7 +110,31 @@ TopDownGame.Game.prototype = {
 		this.treasure.enableBody = true;
 
 		result = this.findObjectsByType('treasure', this.map, 'objectsLayer');
-		this.treasure.create(result[0].x, result[0].y, 'treasure');
+
+	    result.forEach(function(element){
+	     	this.createFromTiledObject(element, this.treasure);
+	    }, this);
+	},
+
+	createDoors: function() {
+	    this.doors = this.game.add.group();
+	    this.doors.enableBody = true;
+	    result = this.findObjectsByType('door', this.map, 'objectsLayer');
+	 
+	    result.forEach(function(element){
+	      this.createFromTiledObject(element, this.doors);
+	    }, this);
+	},
+
+	createEnemies: function() {
+		this.enemies = this.game.add.group();
+		this.behindFogGroup.add(this.enemies);
+		this.enemies.enableBody = true;
+	    result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
+	 
+	    result.forEach(function(element){
+	      this.createFromTiledObject(element, this.enemies);
+	    }, this);		
 	},
 
 	// find objects in a Tiled layer that contain a property called "type" equal to a certain value
@@ -142,6 +166,9 @@ TopDownGame.Game.prototype = {
 	},
 
 	findTreasure: function(player, treasure) {
-		treasure.frame = 1;
+		if (treasure.frame == 0) {
+			treasure.frame = 1; // open the chest
+			this.createEnemies(); // time to run!
+		}
 	}
 }
