@@ -5,9 +5,10 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 80,
-	ENEMY_SPEED: 50,
+	ENEMY_SPEED: 40,
 	EPSILON: 2,
 	STAGE: 0,
+	CRUMBS: 4,
 
 
 	create: function() {
@@ -47,6 +48,7 @@ TopDownGame.Game.prototype = {
 
 		this.player.direction = 'right';
 		this.player.markerQueue = [];
+		this.player.crumbsLeft = this.CRUMBS;
 
 		// INPUT
 		
@@ -63,6 +65,16 @@ TopDownGame.Game.prototype = {
 
 		this.fog = this.game.add.sprite(0, 0, 'fog');
 		this.fog.anchor.setTo(0.5);
+
+		// TEXT
+
+	    this.crumbsText = this.game.add.text(16, 16, this.player.crumbsLeft + ' CRUMBS LEFT', { fontSize: '10px', fill: '#fff' });
+    	this.crumbsText.fixedToCamera = true;
+
+    	this.alertText = this.game.add.text(this.game.width/2, this.game.height/2, "", { fontSize: '12px', fill: '#fff', align: 'center'});
+    	this.alertText.anchor.setTo(0.5);
+    	this.alertText.fixedToCamera = true;
+
 	},
 
 	update: function() {
@@ -148,6 +160,7 @@ TopDownGame.Game.prototype = {
 
 			this.enemies.forEach(this.moveEnemy, this);
 			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
+			this.game.physics.arcade.collide(this.enemies, this.doors);
 			this.game.physics.arcade.overlap(this.player, this.enemies, this.touchEnemy, null, this);
 
 		}
@@ -292,7 +305,11 @@ TopDownGame.Game.prototype = {
 	},
 
 	dropCrumb: function() {
-		this.crumbs.create(this.player.x, this.player.y, 'crumb');
+		if (this.player.crumbsLeft > 0) {
+			this.crumbs.create(this.player.x, this.player.y, 'crumb');
+			this.player.crumbsLeft--;
+			this.crumbsText.text = this.player.crumbsLeft + " CRUMBS LEFT";
+		}
 	},
 
 	createItems: function() {
@@ -332,7 +349,7 @@ TopDownGame.Game.prototype = {
 	},
 
 	createEnemies: function() {
-		this.enemies = this.game.add.group();
+		// this.enemies = this.game.add.group();
 		// this.behindFogGroup.add(this.enemies);
 		this.enemies.enableBody = true;
 	    result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
@@ -397,23 +414,30 @@ TopDownGame.Game.prototype = {
 		if (treasure.frame == 0) {
 			treasure.frame = 1; // open the chest
 
-			this.game.time.events.add(500, function() {
+			this.game.time.events.add(1000, function() {
 				this.createEnemies();
-				this.STAGE = 1;
+			}, this);
+
+			this.alertText.text = "TIME TO RUN!";
+			this.game.time.events.add(2000, function() {
+				this.alertText.text = "";
 			}, this);
 
 			// this.createEnemies(); // time to run!
-			// this.STAGE = 1; // update game stage
+			this.enemies = this.game.add.group();
+			this.STAGE = 1; // update game stage
 			player.markerQueue = []; // initialise empty queue
 		}
 	},
 
 	touchEnemy: function(player, enemy) {
 		console.log("DEAD!");
+		this.alertText.text = "YOU DIED!";
 	},
 
 	openDoor: function(player, door) {
 		console.log("OPEN DOOR");
+		this.alertText.text = "YOU ESCAPED!";
 	},
 
 	addMarkerToQueue: function(player, marker) {
