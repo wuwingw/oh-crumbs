@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" nextobjectid="33">
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" nextobjectid="34">
  <tileset firstgid="1" name="small_tiles" tilewidth="16" tileheight="16" tilecount="25" columns="5">
   <image source="../images/small_tiles.png" width="80" height="80"/>
  </tileset>
@@ -220,6 +220,12 @@
    </properties>
   </object>
   <object id="32" gid="17" x="240" y="64" width="16" height="16">
+   <properties>
+    <property name="sprite" value="none"/>
+    <property name="type" value="exit"/>
+   </properties>
+  </object>
+  <object id="33" gid="17" x="96" y="288" width="16" height="16">
    <properties>
     <property name="sprite" value="none"/>
     <property name="type" value="exit"/>
