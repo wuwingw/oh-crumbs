@@ -37,6 +37,7 @@ TopDownGame.Game.prototype = {
 		this.behindPlayerGroup = this.game.add.group();
 		this.behindFogGroup = this.game.add.group();
 		this.behindFogGroup.add(this.behindPlayerGroup);
+		this.behindTextGroup = this.game.add.group();
 
 		// PLAYER
 
@@ -158,7 +159,12 @@ TopDownGame.Game.prototype = {
 
 		if (this.STAGE > 0) {
 
-			this.enemies.forEach(this.moveEnemy, this);
+			if (this.STAGE == 1)
+				this.enemies.forEach(this.moveEnemy, this);
+			else
+				this.enemies.forEach(function(enemy){
+					enemy.body.velocity.x = 0;
+					enemy.body.velocity.y = 0}, this);
 			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
 			this.game.physics.arcade.collide(this.enemies, this.doors);
 			this.game.physics.arcade.overlap(this.player, this.enemies, this.touchEnemy, null, this);
@@ -350,7 +356,7 @@ TopDownGame.Game.prototype = {
 
 	createEnemies: function() {
 		// this.enemies = this.game.add.group();
-		// this.behindFogGroup.add(this.enemies);
+		this.behindTextGroup.add(this.enemies);
 		this.enemies.enableBody = true;
 	    result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
 	 
@@ -431,12 +437,11 @@ TopDownGame.Game.prototype = {
 	},
 
 	touchEnemy: function(player, enemy) {
-		console.log("DEAD!");
 		this.alertText.text = "YOU DIED!";
+		this.STAGE = 2;
 	},
 
 	openDoor: function(player, door) {
-		console.log("OPEN DOOR");
 		this.alertText.text = "YOU ESCAPED!";
 	},
 
