@@ -15,7 +15,7 @@ TopDownGame.Game.prototype = {
 		// TILEMAP
 
 		this.map = this.game.add.tilemap('mine'); // create tilemap from json
-		this.map.addTilesetImage('tiles', 'gameTiles'); // add its tileset image
+		this.map.addTilesetImage('small_tiles', 'gameTiles'); // add its tileset image
 
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
 		this.blockedLayer = this.map.createLayer('blockedLayer');
@@ -133,6 +133,13 @@ TopDownGame.Game.prototype = {
         		}
         	}, this);
             // this.game.physics.arcade.overlap(this.player, this.exitMarkers, this.updateMarker, null, this);
+        }
+
+        // door
+        if (this.STAGE > 0) {
+        	this.game.physics.arcade.overlap(this.player, this.doors, this.openDoor, null, this);
+        } else {
+        	this.game.physics.arcade.collide(this.player, this.doors);
         }
 
 		// ENEMIES
@@ -267,8 +274,8 @@ TopDownGame.Game.prototype = {
 			return (d != direction) && (d != this.opposite(direction));
 		}, this);
 
-		console.log("try!");
-		console.log(directions);
+		// console.log("try!");
+		// console.log(directions);
 		return directions;
 	},
 
@@ -317,6 +324,10 @@ TopDownGame.Game.prototype = {
 	 
 	    result.forEach(function(element){
 	      this.createFromTiledObject(element, this.doors);
+	    }, this);
+
+	    this.doors.forEach(function(door){
+	    	door.body.immovable = true;
 	    }, this);
 	},
 
@@ -393,6 +404,10 @@ TopDownGame.Game.prototype = {
 
 	touchEnemy: function(player, enemy) {
 		console.log("DEAD!");
+	},
+
+	openDoor: function(player, door) {
+		console.log("OPEN DOOR");
 	},
 
 	addMarkerToQueue: function(player, marker) {
