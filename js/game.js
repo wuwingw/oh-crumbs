@@ -20,6 +20,10 @@ TopDownGame.Game.prototype = {
 
 		this.backgroundLayer.resizeWorld(); // make game world same size as map
 
+		// RENDERING GROUPS
+
+		this.behindPlayerGroup = this.game.add.group();
+
 		// ITEMS
 
 		this.createItems();
@@ -33,13 +37,20 @@ TopDownGame.Game.prototype = {
 
 		this.game.camera.follow(this.player);
 
+		// INPUT
+		
 		this.cursors = this.game.input.keyboard.createCursorKeys();
+		this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		this.spaceKey.onDown.add(this.dropCrumb, this);
+
+		// CRUMBS
+		this.crumbs = this.game.add.group();
+		this.crumbs.enableBody = true;
+		this.behindPlayerGroup.add(this.crumbs);
 
 		// FOG
 
 		this.fog = this.game.add.sprite(0, 0, 'fog');
-		// this.fog.fixedToCamera = true;
-		// this.fog.scale.setTo(0.5);
 		this.fog.anchor.setTo(0.5);
 	},
 
@@ -63,6 +74,10 @@ TopDownGame.Game.prototype = {
 			this.player.body.velocity.x += this.PLAYER_SPEED;
 		}
 
+		// if(this.spaceKey.isDown) {
+		// 	this.dropCrumb(this.player.x, this.player.y);
+		// }
+
 		// FOG
 		this.fog.x = this.player.x;
 		this.fog.y = this.player.y;
@@ -73,6 +88,10 @@ TopDownGame.Game.prototype = {
 		this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
 		this.game.physics.arcade.overlap(this.player, this.treasure, this.findTreasure, null, this);
 
+	},
+
+	dropCrumb: function() {
+		this.crumbs.create(this.player.x, this.player.y, 'crumb');
 	},
 
 	createItems: function() {
