@@ -18,13 +18,14 @@ TopDownGame.Preload.prototype = {
 
     this.load.image('player', 'assets/images/player.png');
     this.load.image('crumb', 'assets/images/crumb.png');
+    this.load.image('door', 'assets/images/door.png');
+    this.load.image('mummy', 'assets/images/mummy.png');
     this.load.image('fog', 'assets/images/fog.png'); // the 'fog of war'
 
     this.load.spritesheet('treasure', 'assets/images/treasure.png', 16, 16);
 
     this.load.image('greencup', 'assets/images/greencup.png');
     this.load.image('bluecup', 'assets/images/bluecup.png');
-    this.load.image('browndoor', 'assets/images/browndoor.png');
     
   },
   create: function() {
