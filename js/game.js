@@ -5,6 +5,8 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 100,
+	ENEMY_SPEED: 30,
+	EPSILON: 1,
 	STAGE: 0,
 
 
@@ -94,20 +96,6 @@ TopDownGame.Game.prototype = {
 		this.fog.x = this.player.x;
 		this.fog.y = this.player.y;
 
-		// ENEMIES
-
-		if (this.STAGE > 0) {
-
-			this.enemies.forEach(function(enemy) {
-				var lastMarker = this.player.markerQueue.length ? this.player.markerQueue[this.player.markerQueue.length - 1] : undefined;
-				if (lastMarker)
-					this.game.physics.arcade.moveToObject(enemy, lastMarker, 30);
-			}, this);
-
-			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
-
-		}
-
 		// COLLISION
 
 		this.game.physics.arcade.collide(this.player, this.blockedLayer);
@@ -118,7 +106,8 @@ TopDownGame.Game.prototype = {
         if (this.STAGE > 0) {
         	this.exitMarkers.forEach(function(marker){
         		if (this.game.physics.arcade.overlap(this.player, marker)) {
-    				this.updateMarker(this.player, marker);
+    				this.updateMarkerDirection(this.player, marker);
+    				this.addMarkerToQueue(this.player, marker);
         		} else {
         			marker.overlapped = false;
         		}
@@ -126,7 +115,7 @@ TopDownGame.Game.prototype = {
 
         	this.forkMarkers.forEach(function(marker){
         		if (this.game.physics.arcade.overlap(this.player, marker)) {
-    				this.updateMarker(this.player, marker);
+    				this.updateMarkerDirection(this.player, marker);
         		} else {
         			marker.overlapped = false;
         		}
@@ -134,6 +123,113 @@ TopDownGame.Game.prototype = {
             // this.game.physics.arcade.overlap(this.player, this.exitMarkers, this.updateMarker, null, this);
         }
 
+		// ENEMIES
+
+		if (this.STAGE > 0) {
+
+			this.enemies.forEach(this.moveEnemy, this);
+			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
+
+		}
+
+	},
+
+	moveEnemy: function(enemy) {
+		var nextMarker = this.player.markerQueue.length ? this.player.markerQueue[0] : undefined;
+
+		if (enemy.inRoom && nextMarker) {
+			this.game.physics.arcade.moveToObject(enemy, nextMarker, this.ENEMY_SPEED);
+			// if (this.game.physics.arcade.overlap(enemy, nextMarker)) {
+			if (Math.abs(enemy.x - nextMarker.x) + Math.abs(enemy.y - nextMarker.y) < this.EPSILON) {
+				console.log("reached");
+				// enemy has got to this marker; onto the next one
+				enemy.body.velocity.x = 0;
+				enemy.body.velocity.y = 0;
+				this.player.markerQueue.shift();
+				enemy.inRoom = false;
+
+				// use marker to decide which way to go
+				enemy.direction = nextMarker.direction;
+				enemy.directionsToTry = this.directionsToTry(enemy.direction);
+				enemy.lastCollisionPosition = [enemy.x, enemy.y]
+			}
+		} else if (!enemy.inRoom) {
+			var direction = this.directionToVelocity(enemy.direction);
+			enemy.body.velocity.x = direction[0]*this.ENEMY_SPEED;
+			enemy.body.velocity.y = direction[1]*this.ENEMY_SPEED;
+
+			// if (enemy.body.deltaAbsX() == 0 && enemy.body.deltaAbsY() == 0) {
+			if (this.game.physics.arcade.collide(enemy, this.blockedLayer)) {
+
+				if (enemy.body.blocked[enemy.direction]) {
+					// we've hit a wall
+					console.log('touching when going ' + enemy.direction);
+					console.log(enemy.lastCollisionPosition);
+					
+					if (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16) {
+						// new collision
+						console.log("new");
+						enemy.directionsToTry = this.directionsToTry(enemy.direction);
+					}
+
+					enemy.lastCollisionPosition = [enemy.x, enemy.y]
+	
+					// do we have an existing list of directions to try?
+					// enemy.directionsToTry = (enemy.directionsToTry.length) ? enemy.directionsToTry : this.directionsToTry(enemy.direction);
+	
+					// try going in each direction (if we have a list)
+					var i = 0;
+					for (i = 0; i < enemy.directionsToTry.length; i++) {
+						var direction = enemy.directionsToTry[i];
+						if (direction != enemy.direction) {
+							enemy.direction = direction;
+							break;
+						}
+					}
+					enemy.directionsToTry.splice(i, 1); // remove this direction
+					console.log(enemy.directionsToTry);
+				}
+
+				// enemy.stationaryCount++;
+				// console.log(enemy.stationaryCount);
+
+			}
+		}
+	},
+
+	directionToVelocity: function(direction) {
+		if (direction == 'up') {
+			return [0, -1];
+		} else if (direction == 'right') {
+			return [1, 0];
+		} else if (direction == 'down') {
+			return [0, 1];
+		} else if (direction == 'left') {
+			return [-1, 0];
+		}
+	},
+
+	directionsToTry: function(direction) {
+		var directions = ['up', 'right', 'down', 'left'];
+		directions = directions.filter(function(d) {
+			return (d != direction) && (d != this.opposite(direction));
+		}, this);
+
+		console.log("try!");
+		console.log(directions);
+		return directions;
+	},
+
+	opposite: function(direction) {
+		if (direction == 'up') {
+			return 'down';
+		} else if (direction == 'right') {
+			return 'left';
+		} else if (direction == 'down') {
+			return 'up';
+		} else if (direction == 'left') {
+			return 'right';
+		}
 	},
 
 	dropCrumb: function() {
@@ -183,7 +279,8 @@ TopDownGame.Game.prototype = {
 	    }, this);
 
 	    this.enemies.forEach(function(enemy){
- 			enemy.body.setSize(5, 5, 3, 3);
+ 			enemy.body.setSize(14, 14, 1, 1); // more forgiving collision
+ 			enemy.inRoom = true;
 	    }, this);	
 	},
 
@@ -242,7 +339,7 @@ TopDownGame.Game.prototype = {
 		}
 	},
 
-	updateMarker: function(player, marker) {
+	addMarkerToQueue: function(player, marker) {
 		if (!marker.overlapped) {
 			// var lastMarker = player.markerQueue.length ? player.markerQueue[player.markerQueue.length - 1] : undefined;
 			// if (!lastMarker || (lastMarker.x != marker.x || lastMarker.y != marker.y)) {
@@ -256,7 +353,9 @@ TopDownGame.Game.prototype = {
 			console.log(player.markerQueue);
 			console.log(player.markerQueue.length);
 		}
+	},
 
+	updateMarkerDirection: function(player, marker) {
 		if (player.direction == 'up')
 			marker.frame = 0;
 		else if (player.direction == 'right')
@@ -265,5 +364,7 @@ TopDownGame.Game.prototype = {
 			marker.frame = 2;
 		else if (player.direction == 'left')
 			marker.frame = 3;
+
+		marker.direction = player.direction;
 	}
 }
