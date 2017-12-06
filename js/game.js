@@ -3,7 +3,9 @@ var TopDownGame = TopDownGame || {};
 TopDownGame.Game = function(){};
 
 TopDownGame.Game.prototype = {
+
 	PLAYER_SPEED: 100,
+	STAGE: 0,
 
 
 	create: function() {
@@ -20,17 +22,17 @@ TopDownGame.Game.prototype = {
 
 		this.backgroundLayer.resizeWorld(); // make game world same size as map
 
-		// RENDERING GROUPS
-
-		this.behindPlayerGroup = this.game.add.group();
-		this.behindFogGroup = this.game.add.group();
-		this.behindFogGroup.add(this.behindPlayerGroup);
-
 		// ITEMS
 
 		this.createItems();
 		this.createTreasure();
 		this.createDoors();
+
+		// RENDERING GROUPS
+
+		this.behindPlayerGroup = this.game.add.group();
+		this.behindFogGroup = this.game.add.group();
+		this.behindFogGroup.add(this.behindPlayerGroup);
 
 		// PLAYER
 
@@ -81,6 +83,17 @@ TopDownGame.Game.prototype = {
 
 		this.fog.x = this.player.x;
 		this.fog.y = this.player.y;
+
+		// ENEMIES
+
+		if (this.STAGE > 0) {
+
+			this.enemies.forEach(function(enemy) {
+				this.game.physics.arcade.moveToObject(enemy, this.player, 30);
+			}, this);
+			// this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
+
+		}
 
 		// COLLISION
 
@@ -169,6 +182,7 @@ TopDownGame.Game.prototype = {
 		if (treasure.frame == 0) {
 			treasure.frame = 1; // open the chest
 			this.createEnemies(); // time to run!
+			this.STAGE = 1;
 		}
 	}
 }
