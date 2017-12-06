@@ -331,14 +331,80 @@
                  "width":16,
                  "x":112,
                  "y":208
+                }, 
+                {
+                 "gid":4357,
+                 "height":16,
+                 "id":20,
+                 "name":"",
+                 "properties":
+                    {
+                     "sprite":"none",
+                     "type":"fork"
+                    },
+                 "propertytypes":
+                    {
+                     "sprite":"string",
+                     "type":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":64,
+                 "y":64
+                }, 
+                {
+                 "gid":4357,
+                 "height":16,
+                 "id":21,
+                 "name":"",
+                 "properties":
+                    {
+                     "sprite":"none",
+                     "type":"fork"
+                    },
+                 "propertytypes":
+                    {
+                     "sprite":"string",
+                     "type":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":64,
+                 "y":112
+                }, 
+                {
+                 "gid":4357,
+                 "height":16,
+                 "id":30,
+                 "name":"",
+                 "properties":
+                    {
+                     "sprite":"none",
+                     "type":"fork"
+                    },
+                 "propertytypes":
+                    {
+                     "sprite":"string",
+                     "type":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":160,
+                 "y":48
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "x":0,
          "y":0
         }],
- "nextobjectid":16,
+ "nextobjectid":31,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.3",

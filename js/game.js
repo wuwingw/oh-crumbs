@@ -40,6 +40,7 @@ TopDownGame.Game.prototype = {
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 		this.game.physics.arcade.enable(this.player);
+		this.player.body.setSize(15, 15, 0, 0);
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
@@ -58,7 +59,7 @@ TopDownGame.Game.prototype = {
 
 		// FOG
 
-		this.fog = this.game.add.sprite(0, 0, 'fog');
+		this.fog = this.game.add.sprite(0, 0, 'none');
 		this.fog.anchor.setTo(0.5);
 	},
 
@@ -98,9 +99,12 @@ TopDownGame.Game.prototype = {
 		if (this.STAGE > 0) {
 
 			this.enemies.forEach(function(enemy) {
-				this.game.physics.arcade.moveToObject(enemy, this.player, 30);
+				var lastMarker = this.player.markerQueue.length ? this.player.markerQueue[this.player.markerQueue.length - 1] : undefined;
+				if (lastMarker)
+					this.game.physics.arcade.moveToObject(enemy, lastMarker, 30);
 			}, this);
-			// this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
+
+			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
 
 		}
 
@@ -111,11 +115,18 @@ TopDownGame.Game.prototype = {
 		this.game.physics.arcade.overlap(this.player, this.treasure, this.findTreasure, null, this);
 
         // markers
-        if (true) {
+        if (this.STAGE > 0) {
         	this.exitMarkers.forEach(function(marker){
         		if (this.game.physics.arcade.overlap(this.player, marker)) {
-        			if (!marker.overlapped)
-        				this.updateMarker(this.player, marker);
+    				this.updateMarker(this.player, marker);
+        		} else {
+        			marker.overlapped = false;
+        		}
+        	}, this);
+
+        	this.forkMarkers.forEach(function(marker){
+        		if (this.game.physics.arcade.overlap(this.player, marker)) {
+    				this.updateMarker(this.player, marker);
         		} else {
         			marker.overlapped = false;
         		}
@@ -169,18 +180,18 @@ TopDownGame.Game.prototype = {
 	 
 	    result.forEach(function(element){
 	      this.createFromTiledObject(element, this.enemies);
-	    }, this);		
+	    }, this);
+
+	    this.enemies.forEach(function(enemy){
+ 			enemy.body.setSize(5, 5, 3, 3);
+	    }, this);	
 	},
 
     createMarkers: function() {
-        this.markers = this.game.add.group();
         this.exitMarkers = this.game.add.group();
         this.exitMarkers.enableBody = true;
         this.forkMarkers = this.game.add.group();
         this.forkMarkers.enableBody = true;
-        this.markers.add(this.exitMarkers);
-        this.markers.add(this.forkMarkers);
-        this.markers.enableBody = true;
 
         result = this.findObjectsByType('exit', this.map, 'objectsLayer');
         result.forEach(function(element){
@@ -233,26 +244,26 @@ TopDownGame.Game.prototype = {
 
 	updateMarker: function(player, marker) {
 		if (!marker.overlapped) {
-			console.log("yo");
-
-			if (player.direction == 'up')
-				marker.frame = 0;
-			else if (player.direction == 'right')
-				marker.frame = 1;
-			else if (player.direction == 'down')
-				marker.frame = 2;
-			else if (player.direction == 'left')
-				marker.frame = 3;
-
-			var lastMarker = player.markerQueue.length ? player.markerQueue[player.markerQueue.length - 1] : undefined;
-			if (lastMarker != marker) {
-				player.markerQueue.push(marker);
-			} else {
-				player.markerQueue.pop();
-			}
+			// var lastMarker = player.markerQueue.length ? player.markerQueue[player.markerQueue.length - 1] : undefined;
+			// if (!lastMarker || (lastMarker.x != marker.x || lastMarker.y != marker.y)) {
+			// 	player.markerQueue.push(marker);
+			// } else {
+			// 	player.markerQueue.pop();
+			// }
+			player.markerQueue.push(marker);
 
 			marker.overlapped = true;
 			console.log(player.markerQueue);
+			console.log(player.markerQueue.length);
 		}
+
+		if (player.direction == 'up')
+			marker.frame = 0;
+		else if (player.direction == 'right')
+			marker.frame = 1;
+		else if (player.direction == 'down')
+			marker.frame = 2;
+		else if (player.direction == 'left')
+			marker.frame = 3;
 	}
 }
