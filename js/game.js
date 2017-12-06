@@ -40,8 +40,10 @@ TopDownGame.Game.prototype = {
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 		this.game.physics.arcade.enable(this.player);
-		this.player.direction = 'right';
 		this.game.camera.follow(this.player);
+
+		this.player.direction = 'right';
+		this.player.markerQueue = [];
 
 		// INPUT
 		
@@ -110,7 +112,15 @@ TopDownGame.Game.prototype = {
 
         // markers
         if (true) {
-            this.game.physics.arcade.overlap(this.player, this.exitMarkers, this.updateMarker, null, this);
+        	this.exitMarkers.forEach(function(marker){
+        		if (this.game.physics.arcade.overlap(this.player, marker)) {
+        			if (!marker.overlapped)
+        				this.updateMarker(this.player, marker);
+        		} else {
+        			marker.overlapped = false;
+        		}
+        	}, this);
+            // this.game.physics.arcade.overlap(this.player, this.exitMarkers, this.updateMarker, null, this);
         }
 
 	},
@@ -182,9 +192,6 @@ TopDownGame.Game.prototype = {
                 this.createFromTiledObject(element, this.forkMarkers);
         }, this);
 
-        // this.exitMarkers.forEach(function(element){
-        //      element.sprite = 'arrow';
-        // });
 	},
 
 	// find objects in a Tiled layer that contain a property called "type" equal to a certain value
@@ -219,19 +226,33 @@ TopDownGame.Game.prototype = {
 		if (treasure.frame == 0) {
 			treasure.frame = 1; // open the chest
 			this.createEnemies(); // time to run!
-			this.STAGE = 1;
+			this.STAGE = 1; // update game stage
+			player.markerQueue = []; // initialise empty queue
 		}
 	},
 
 	updateMarker: function(player, marker) {
-		console.log("yo");
-		if (player.direction == 'up')
-			marker.frame = 0;
-		else if (player.direction == 'right')
-			marker.frame = 1;
-		else if (player.direction == 'down')
-			marker.frame = 2;
-		else if (player.direction == 'left')
-			marker.frame = 3;
+		if (!marker.overlapped) {
+			console.log("yo");
+
+			if (player.direction == 'up')
+				marker.frame = 0;
+			else if (player.direction == 'right')
+				marker.frame = 1;
+			else if (player.direction == 'down')
+				marker.frame = 2;
+			else if (player.direction == 'left')
+				marker.frame = 3;
+
+			var lastMarker = player.markerQueue.length ? player.markerQueue[player.markerQueue.length - 1] : undefined;
+			if (lastMarker != marker) {
+				player.markerQueue.push(marker);
+			} else {
+				player.markerQueue.pop();
+			}
+
+			marker.overlapped = true;
+			console.log(player.markerQueue);
+		}
 	}
 }
