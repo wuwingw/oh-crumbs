@@ -42,7 +42,7 @@ TopDownGame.Game.prototype = {
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 		this.game.physics.arcade.enable(this.player);
-		this.player.body.setSize(15, 15, 0, 0);
+		this.player.body.setSize(14, 14, 1, 1);
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
@@ -90,6 +90,18 @@ TopDownGame.Game.prototype = {
 			this.player.frame = 0;
 			this.player.direction = 'right';
 		}
+
+		// if (Math.abs(this.player.body.deltaY) > Math.abs(this.player.body.deltaX)) {
+		// 	if (this.player.body.velocity.y < 0)
+		// 		this.player.direction = 'up';
+		// 	else
+		// 		this.player.direction = 'down';
+		// } else {
+		// 	if (this.player.body.velocity.x < 0)
+		// 		this.player.direction = 'left';
+		// 	else
+		// 		this.player.direction = 'right';			
+		// }
 
 		// FOG
 
@@ -201,6 +213,12 @@ TopDownGame.Game.prototype = {
 
 						enemy.lastCollisionPosition = [enemy.x, enemy.y]
 		
+						// no list? we're in a dead end.
+						if (!enemy.directionsToTry.length) {
+							enemy.body.velocity.x = 0;
+							enemy.body.velocity.y = 0;
+						}
+
 						// try going in each direction (if we have a list)
 						var i = 0;
 						for (i = 0; i < enemy.directionsToTry.length; i++) {
@@ -365,12 +383,6 @@ TopDownGame.Game.prototype = {
 
 	addMarkerToQueue: function(player, marker) {
 		if (!marker.overlapped) {
-			// var lastMarker = player.markerQueue.length ? player.markerQueue[player.markerQueue.length - 1] : undefined;
-			// if (!lastMarker || (lastMarker.x != marker.x || lastMarker.y != marker.y)) {
-			// 	player.markerQueue.push(marker);
-			// } else {
-			// 	player.markerQueue.pop();
-			// }
 			player.markerQueue.push(marker);
 
 			marker.overlapped = true;
@@ -380,15 +392,18 @@ TopDownGame.Game.prototype = {
 	},
 
 	updateMarkerDirection: function(player, marker) {
-		if (player.direction == 'up')
+		if (player.direction == 'up') {
 			marker.frame = 0;
-		else if (player.direction == 'right')
+			marker.direction = player.direction;
+		} else if (player.direction == 'right') {
 			marker.frame = 1;
-		else if (player.direction == 'down')
+			marker.direction = player.direction;
+		} else if (player.direction == 'down') {
 			marker.frame = 2;
-		else if (player.direction == 'left')
+			marker.direction = player.direction;
+		} else if (player.direction == 'left') {
 			marker.frame = 3;
-
-		marker.direction = player.direction;
+			marker.direction = player.direction;
+		}
 	}
 }
