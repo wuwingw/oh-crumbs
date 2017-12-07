@@ -20,13 +20,21 @@ TopDownGame.Game.prototype = {
 		console.log(this.LEVEL);
 	},
 
+	preload: function() {
+		// GENERATE LEVEL
+		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(20, 60, 3, 8));
+		// this.game.cache.addJSON('levelJSON', null, this.levelJSON);
+		this.load.tilemap('level', null, this.levelJSON, Phaser.Tilemap.TILED_JSON);
+	},
+
 	create: function() {
 
 		this.STAGE = 0;
 
 		// TILEMAP
 
-		this.map = this.game.add.tilemap('level' + this.LEVEL); // create tilemap from json
+		// this.map = this.game.add.tilemap('level' + this.LEVEL); // create tilemap from json
+		this.map = this.game.add.tilemap('level');
 		this.map.addTilesetImage('small_tiles', 'gameTiles'); // add its tileset image
 
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
