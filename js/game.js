@@ -5,7 +5,7 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 80,
-	ENEMY_SPEED: 50,
+	ENEMY_SPEED: 60,
 	EPSILON: 2,
 	STAGE: 0,
 	CRUMBS: 4,
@@ -428,7 +428,7 @@ TopDownGame.Game.prototype = {
 		if (treasure.frame == 0) {
 			treasure.frame = 1; // open the chest
 
-			this.game.time.events.add(1000, function() {
+			this.game.time.events.add(3000, function() {
 				this.createEnemies();
 			}, this);
 
