@@ -214,6 +214,9 @@ var Converter = (function() {
 		map.unshift(outerWallRow);
 		map.push(outerWallRow);
 
+		// remove outer wall where door is
+		map[map.length-2][0] = 0;
+
 		// flatten 2d array
 		var flattened = [].concat.apply([], map);
 
@@ -233,11 +236,11 @@ var Converter = (function() {
 		objects.push(d);
 
 		// insert treasure
-		var t = treasure(16*treasureCol, 16*treasureRow);
+		var t = treasure(16*treasureCol, 16*(treasureRow+1));
 		objects.push(t);
 
 		// enemy spawns on top of treasure
-		var e = enemy(16*treasureCol, 16*treasureRow);
+		var e = enemy(16*treasureCol, 16*(treasureRow+1));
 		objects.push(e);
 
 		// put objects array into tilemap json

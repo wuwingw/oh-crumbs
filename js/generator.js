@@ -43,8 +43,6 @@ var Generator = (function() {
 		var tunnelsLeft = tunnelNo;
 		while (tunnelsLeft > 0) {
 
-			console.log("diggin " + tunnelsLeft);
-
 			var previousDirection = currentDirection;
 			var oppositePreviousDirection = [-1*previousDirection[0], -1*previousDirection[1]];
 
@@ -53,7 +51,7 @@ var Generator = (function() {
 				currentDirection = allDirections[Math.floor(Math.random() * allDirections.length)];
 			} while (currentDirection == previousDirection || currentDirection == oppositePreviousDirection);
 
-			console.log("direction " + currentDirection[0] + ", " + currentDirection[1]);
+			// console.log("direction " + currentDirection[0] + ", " + currentDirection[1]);
 
 			// pick a tunnel length
 			var length = Math.ceil(Math.random() * (tunnelMax - tunnelMin)) + tunnelMin;
@@ -64,7 +62,7 @@ var Generator = (function() {
 			while (dugLength < length) {
 				// dig!
 				map[currentRow][currentCol] = 0;
-				console.log("digging at " + currentRow + ", " + currentCol);
+				// console.log("digging at " + currentRow + ", " + currentCol);
 				
 				// move
 				currentRow += currentDirection[1];
@@ -72,13 +70,11 @@ var Generator = (function() {
 
 				// check if we've hit the edges
 				if (currentRow < 0 || currentRow >= n || currentCol < 0 || currentCol >= n) {
-					console.log("hit the edge after digging " + dugLength);
+					// console.log("hit the edge after digging " + dugLength);
 					// undo last move
 					currentRow -= currentDirection[1];
 					currentCol -= currentDirection[0];
 
-					if ((currentRow < 0 || currentRow >= n || currentCol < 0 || currentCol >= n))
-						console.log("Nooo " + currentRow + ", " + currentCol);
 					break;
 				}
 
