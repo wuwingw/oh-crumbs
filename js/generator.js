@@ -97,7 +97,7 @@ var Generator = (function() {
 					map[currentRow][currentCol] = 0;
 					dugCells.push([currentRow, currentCol]);
 				}
-				
+
 				// console.log("digging at " + currentRow + ", " + currentCol);
 				
 				// move
@@ -142,16 +142,12 @@ var Generator = (function() {
 
 		// place treasure somewhere in top right quadrant
 		var halfN = Math.ceil(n/2);
-		// var randomX, randomY;
-		// do {
-		// 	randomX = Math.floor(Math.random() * (n - halfN)) + halfN;
-		// 	randomY = Math.floor(Math.random() * (halfN));
-		// } while (map[randomY][randomX] == 1)
-
 		var randomCell;
+		var failures = 0;
 		do {
-			randomCell = openCells[Math.floor(Math.random() * openCells.length)];			
-		} while (randomCell[0] > halfN || randomCell[1] < halfN);
+			randomCell = openCells[Math.floor(Math.random() * openCells.length)];
+			failures++;			
+		} while (randomCell[0] > halfN || randomCell[1] < halfN || failures < 100);
 
 		map[randomCell[0]][randomCell[1]] = 2
 		console.log("treasure at " + randomCell[0] + ", " + randomCell[1]);
