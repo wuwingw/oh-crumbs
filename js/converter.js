@@ -125,15 +125,78 @@ var Converter = (function() {
 		}
 	}
 
-	var convertMapToTileMap = function(map) {
+	var treasure = function(x, y) {
+		return {
+			"gid":11,
+			"height":16,
+			"id":3,
+			"name":"",
+			"properties":
+				{
+					 "sprite":"treasure",
+					 "type":"treasure"
+				},
+			"propertytypes":
+				{
+					 "sprite":"string",
+					 "type":"string"
+				},
+			"rotation":0,
+			"type":"",
+			"visible":true,
+			"width":16,
+			"x": x,
+			"y": y
+		}
+	}
 
+	var enemy = function(x, y) {
+		return {
+			"gid":8,
+			"height":16,
+			"id":4,
+			"name":"",
+			"properties":
+				{
+					 "sprite":"mummy",
+					 "type":"enemy"
+				},
+			"propertytypes":
+				{
+					 "sprite":"string",
+					 "type":"string"
+				},
+			"rotation":0,
+			"type":"",
+			"visible":true,
+			"width":16,
+			"x": x,
+			"y": y
+		}
+	}
+
+	var convertMapToTileMap = function(m) {
+		var map = m;
+		
 		// add 2 to grid dimensions - for the border
 		var tilemap = template(map.length + 2);
+
+		// find the treasure first
+		var treasureRow, treasureCol;
+		for (var row = 0; row < map.length; row++) {
+			if (map[row].indexOf(2) > -1) {
+				treasureCol = map[row].indexOf(2);
+				treasureRow = row;
+				break;
+			}
+		}
+		treasureRow++;
+		treasureCol++;
 
 		// convert 1s to innerwall
 		for (var row = 0; row < map.length; row++) {
 			map[row] = map[row].map(function(e) {
-				return (e == 1) ? innerWall : e
+				return (e == 1) ? innerWall : 0
 			});
 		}
 
@@ -169,6 +232,15 @@ var Converter = (function() {
 		var d = door(0, 16*(map.length-1));
 		objects.push(d);
 
+		// insert treasure
+		var t = treasure(16*treasureCol, 16*treasureRow);
+		objects.push(t);
+
+		// enemy spawns on top of treasure
+		var e = enemy(16*treasureCol, 16*treasureRow);
+		objects.push(e);
+
+		// put objects array into tilemap json
 		tilemap.layers[2].objects = objects;
 		tilemap.nextobjectid = objects.length;
 

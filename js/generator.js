@@ -91,6 +91,17 @@ var Generator = (function() {
 
 		}
 
+		// place treasure somewhere in top right quadrant
+		var halfN = Math.ceil(n/2);
+		var randomX, randomY;
+		do {
+			randomX = Math.floor(Math.random() * (n - halfN)) + halfN;
+			randomY = Math.floor(Math.random() * (halfN));
+		} while (map[randomY][randomX] == 1)
+
+		map[randomY][randomX] = 2
+		console.log("treasure at " + randomX + ", " + randomY);
+
 		return map;
 
 	};
