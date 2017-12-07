@@ -6,13 +6,13 @@ TopDownGame.Preload = function(){};
 TopDownGame.Preload.prototype = {
   preload: function() {
     // show loading screen
-    this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadbar');
+    this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'preloadbar');
     this.preloadBar.anchor.setTo(0.5);
  
     this.load.setPreloadSprite(this.preloadBar);
 
-    // font
-    this.load.bitmapFont('pixeled', 'assets/fonts/font/font.png', 'assets/fonts/font/font.xml');
+    // // font
+    // this.load.bitmapFont('pixeled', 'assets/fonts/font/font.png', 'assets/fonts/font/font.xml');
  
     // sprites
     // this.load.tilemap('level1', 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
@@ -35,6 +35,7 @@ TopDownGame.Preload.prototype = {
     
   },
   create: function() {
-    this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
+      // this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
+      this.state.start('Title', true, false);
   }
 };
