@@ -20,9 +20,11 @@ TopDownGame.Game.prototype = {
 
 	create: function() {
 
+		this.STAGE = 0;
+
 		// TILEMAP
 
-		this.map = this.game.add.tilemap('mine'); // create tilemap from json
+		this.map = this.game.add.tilemap('level' + this.LEVEL); // create tilemap from json
 		this.map.addTilesetImage('small_tiles', 'gameTiles'); // add its tileset image
 
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
@@ -120,18 +122,6 @@ TopDownGame.Game.prototype = {
 			this.player.frame = 0;
 			this.player.direction = 'right';
 		}
-
-		// if (Math.abs(this.player.body.deltaY) > Math.abs(this.player.body.deltaX)) {
-		// 	if (this.player.body.velocity.y < 0)
-		// 		this.player.direction = 'up';
-		// 	else
-		// 		this.player.direction = 'down';
-		// } else {
-		// 	if (this.player.body.velocity.x < 0)
-		// 		this.player.direction = 'left';
-		// 	else
-		// 		this.player.direction = 'right';			
-		// }
 
 		// FOG
 
@@ -255,12 +245,9 @@ TopDownGame.Game.prototype = {
 
 					if (enemy.body.blocked[enemy.direction]) {
 						// we've hit a wall
-						// console.log('touching when going ' + enemy.direction);
-						// console.log(enemy.lastCollisionPosition);
 						
 						if (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16) {
 							// new collision
-							// console.log("new");
 							enemy.directionsToTry = this.directionsToTry(enemy.direction);
 						}
 
