@@ -29,6 +29,26 @@ var Generator = (function() {
 		[0, 1]
 	]
 
+	var outOfBounds = function(x, y, n) {
+		// check whether x, y is a valid coord for an nxn grid
+		return x < 0 || x >= n || y < 0 || y >= n;
+	};
+
+	var getAdjacentCells = function(x, y, n) {
+		// given an x, y cord, return the N, E, S, W neighbour coords within the nxn grid
+
+		var neighbourOffsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+		var toReturn = [];
+
+		for (var i = 0; i < neighbourOffsets.length; i++) {
+			var offset = neighbourOffsets[i];
+			if (!outOfBounds(x + offset[0], y + offset[1], n))
+				toReturn.push([x + offset[0], y + offset[1]]);
+		}
+
+		return toReturn;
+	}
+
 	var createMap = function(n, tunnelNo, tunnelMin, tunnelMax) {
 
 		var map = createGrid(n, 1); // create nxn grid of 1s
@@ -41,6 +61,7 @@ var Generator = (function() {
 		var currentDirection = allDirections[Math.floor(Math.random() * allDirections.length)];
 
 		var tunnelsLeft = tunnelNo;
+		var openCells = [];
 		while (tunnelsLeft > 0) {
 
 			var previousDirection = currentDirection;
@@ -59,9 +80,24 @@ var Generator = (function() {
 
 			// dig the tunnel
 			var dugLength = -1;
+			var dugCells = []; // remember the cells we've dug
+			var nextCellIsOpen = false;
 			while (dugLength < length) {
-				// dig!
-				map[currentRow][currentCol] = 0;
+
+				// check how many NESW neighbour cells are already open
+				var adjacentCells = getAdjacentCells(currentRow, currentCol, n);
+				var count = 0;
+				for (var i = 0; i < adjacentCells.length; i++) {
+					if (map[adjacentCells[i][0]][adjacentCells[i][1]] == 0)
+						count++;
+				}
+
+				// only dig if the cell has 1 or fewer adjacent open cells
+				if (count < 2) {
+					map[currentRow][currentCol] = 0;
+					dugCells.push([currentRow, currentCol]);
+				}
+				
 				// console.log("digging at " + currentRow + ", " + currentCol);
 				
 				// move
@@ -69,34 +105,56 @@ var Generator = (function() {
 				currentCol += currentDirection[0];
 
 				// check if we've hit the edges
-				if (currentRow < 0 || currentRow >= n || currentCol < 0 || currentCol >= n) {
+				if (outOfBounds(currentRow, currentCol, n)) {
 					// console.log("hit the edge after digging " + dugLength);
 					// undo last move
 					currentRow -= currentDirection[1];
 					currentCol -= currentDirection[0];
 
+					nextCellIsOpen = false;
 					break;
+				} else {
+					nextCellIsOpen = (map[currentRow][currentCol] == 0);
 				}
+
+				// check if we're not digging a tunnel
 
 				dugLength++;
 			}
+
+			// // is this just an unnecessary alcove
+			// if (dugCells.length == 1 && !nextCellIsOpen) {
+			// 	// undo it
+			// 	map[dugCells[0][0]][dugCells[0][1]] = 1;
+			// 	dugLength = 0;
+			// }
+
+			// store the cells we've dug
+			for (var i = 0; i < dugCells.length; i++)
+				openCells.push([dugCells[i][0], dugCells[i][1]]);
 
 			// only count this as a tunnel if we managed to dig
 			if (dugLength > 0)
 				tunnelsLeft--;
 
+			// console.log(tunnelsLeft);
 		}
 
 		// place treasure somewhere in top right quadrant
 		var halfN = Math.ceil(n/2);
-		var randomX, randomY;
-		do {
-			randomX = Math.floor(Math.random() * (n - halfN)) + halfN;
-			randomY = Math.floor(Math.random() * (halfN));
-		} while (map[randomY][randomX] == 1)
+		// var randomX, randomY;
+		// do {
+		// 	randomX = Math.floor(Math.random() * (n - halfN)) + halfN;
+		// 	randomY = Math.floor(Math.random() * (halfN));
+		// } while (map[randomY][randomX] == 1)
 
-		map[randomY][randomX] = 2
-		console.log("treasure at " + randomX + ", " + randomY);
+		var randomCell;
+		do {
+			randomCell = openCells[Math.floor(Math.random() * openCells.length)];			
+		} while (randomCell[0] > halfN || randomCell[1] < halfN);
+
+		map[randomCell[0]][randomCell[1]] = 2
+		console.log("treasure at " + randomCell[0] + ", " + randomCell[1]);
 
 		return map;
 
