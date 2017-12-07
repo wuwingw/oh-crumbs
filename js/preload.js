@@ -35,6 +35,6 @@ TopDownGame.Preload.prototype = {
     
   },
   create: function() {
-    this.state.start('Game', true, false, 1); // 1 is level number
+    this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
   }
 };

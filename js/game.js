@@ -12,9 +12,11 @@ TopDownGame.Game.prototype = {
 	LEVEL: 1,
 
 
-	init: function(levelNumber) {
+	init: function(levelNumber, crumbsLeft) {
 		if (levelNumber)
 			this.LEVEL = levelNumber;
+		if (crumbsLeft)
+			this.CRUMBS = crumbsLeft;
 		console.log(this.LEVEL);
 	},
 
@@ -104,23 +106,25 @@ TopDownGame.Game.prototype = {
 		this.player.body.velocity.y = 0;
 		this.player.body.velocity.x = 0;
 
-		if(this.cursors.up.isDown) {
-			this.player.body.velocity.y -= this.PLAYER_SPEED;
-			this.player.direction = 'up';
-		}
-		else if(this.cursors.down.isDown) {
-			this.player.body.velocity.y += this.PLAYER_SPEED;
-			this.player.direction = 'down';
-		}
-		else if(this.cursors.left.isDown) {
-			this.player.body.velocity.x -= this.PLAYER_SPEED;
-			this.player.frame = 1;
-			this.player.direction = 'left';
-		}
-		else if(this.cursors.right.isDown) {
-			this.player.body.velocity.x += this.PLAYER_SPEED;
-			this.player.frame = 0;
-			this.player.direction = 'right';
+		if (this.STAGE < 2) {
+			if(this.cursors.up.isDown) {
+				this.player.body.velocity.y -= this.PLAYER_SPEED;
+				this.player.direction = 'up';
+			}
+			else if(this.cursors.down.isDown) {
+				this.player.body.velocity.y += this.PLAYER_SPEED;
+				this.player.direction = 'down';
+			}
+			else if(this.cursors.left.isDown) {
+				this.player.body.velocity.x -= this.PLAYER_SPEED;
+				this.player.frame = 1;
+				this.player.direction = 'left';
+			}
+			else if(this.cursors.right.isDown) {
+				this.player.body.velocity.x += this.PLAYER_SPEED;
+				this.player.frame = 0;
+				this.player.direction = 'right';
+			}
 		}
 
 		// FOG
@@ -479,7 +483,7 @@ TopDownGame.Game.prototype = {
 
 	finishLevel: function() {
 		this.game.time.events.add(2000, function() {
-    		this.state.start('Game', true, false, this.LEVEL + 1); // 1 is level number
+    		this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft); // levelnumber, crumbsleft
 		}, this);
 	},
 }
