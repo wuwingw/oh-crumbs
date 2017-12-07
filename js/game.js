@@ -452,6 +452,7 @@ TopDownGame.Game.prototype = {
 
 	openDoor: function(player, door) {
 		this.alertText.text = "YOU ESCAPED";
+		this.STAGE = 2;
 		this.finishLevel();
 	},
 
