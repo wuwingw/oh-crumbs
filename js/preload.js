@@ -5,13 +5,16 @@ TopDownGame.Preload = function(){};
  
 TopDownGame.Preload.prototype = {
   preload: function() {
-    //show loading screen
+    // show loading screen
     this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadbar');
     this.preloadBar.anchor.setTo(0.5);
  
     this.load.setPreloadSprite(this.preloadBar);
+
+    // font
+    this.load.bitmapFont('pixeled', 'assets/fonts/font/font.png', 'assets/fonts/font/font.xml');
  
-    //load game assets
+    // sprites
     this.load.tilemap('level1', 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
     this.load.tilemap('mine', 'assets/tilemaps/level_1.json', null, Phaser.Tilemap.TILED_JSON);
     this.load.image('gameTiles', 'assets/images/small_tiles.png');

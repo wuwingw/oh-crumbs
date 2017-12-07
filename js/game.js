@@ -37,7 +37,6 @@ TopDownGame.Game.prototype = {
 		this.behindPlayerGroup = this.game.add.group();
 		this.behindFogGroup = this.game.add.group();
 		this.behindFogGroup.add(this.behindPlayerGroup);
-		this.behindTextGroup = this.game.add.group();
 
 		// PLAYER
 
@@ -69,10 +68,14 @@ TopDownGame.Game.prototype = {
 
 		// TEXT
 
-	    this.crumbsText = this.game.add.text(16, 16, this.player.crumbsLeft + ' CRUMBS LEFT', { fontSize: '10px', fill: '#fff' });
+    	this.behindTextGroup = this.game.add.group();
+	    // this.crumbsText = this.game.add.text(16.5, 16.5, this.player.crumbsLeft + ' CRUMBS LEFT', { font: 'pixeled', fontSize: '5px', fill: '#fff' });
+    	this.crumbsText = this.game.add.bitmapText(8, 8, 'pixeled', '', 6);
+    	this.crumbsText.setText(this.player.crumbsLeft + ' CRUMBS LEFT');
     	this.crumbsText.fixedToCamera = true;
 
-    	this.alertText = this.game.add.text(this.game.width/2, this.game.height/2, "", { fontSize: '12px', fill: '#fff', align: 'center'});
+    	// this.alertText = this.game.add.text(this.game.width/2, this.game.height/2, "", { fontSize: '12px', fill: '#fff', align: 'center'});
+    	this.alertText = this.game.add.bitmapText(this.game.width/2, this.game.height/2, 'pixeled', '', 6);
     	this.alertText.anchor.setTo(0.5);
     	this.alertText.fixedToCamera = true;
 
@@ -424,7 +427,7 @@ TopDownGame.Game.prototype = {
 				this.createEnemies();
 			}, this);
 
-			this.alertText.text = "TIME TO RUN!";
+			this.alertText.text = "TIME TO RUN";
 			this.game.time.events.add(2000, function() {
 				this.alertText.text = "";
 			}, this);
@@ -437,12 +440,12 @@ TopDownGame.Game.prototype = {
 	},
 
 	touchEnemy: function(player, enemy) {
-		this.alertText.text = "YOU DIED!";
+		this.alertText.text = "YOU DIED";
 		this.STAGE = 2;
 	},
 
 	openDoor: function(player, door) {
-		this.alertText.text = "YOU ESCAPED!";
+		this.alertText.text = "YOU ESCAPED";
 	},
 
 	addMarkerToQueue: function(player, marker) {
