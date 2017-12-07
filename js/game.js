@@ -129,8 +129,8 @@ TopDownGame.Game.prototype = {
 
 		// FOG
 
-		this.fog.x = this.player.x;
-		this.fog.y = this.player.y;
+		this.fog.x = this.player.x + this.player.width/2;
+		this.fog.y = this.player.y + this.player.height/2;
 
 		// COLLISION
 
