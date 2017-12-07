@@ -314,7 +314,7 @@ TopDownGame.Game.prototype = {
 	},
 
 	dropCrumb: function() {
-		if (this.player.crumbsLeft > 0) {
+		if (this.player.crumbsLeft > 0 && this.STAGE == 0) {
 			this.crumbs.create(this.player.x, this.player.y, 'crumb');
 			this.player.crumbsLeft--;
 			this.crumbsText.text = this.player.crumbsLeft + " CRUMBS LEFT";
