@@ -5,11 +5,18 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 80,
-	ENEMY_SPEED: 40,
+	ENEMY_SPEED: 50,
 	EPSILON: 2,
 	STAGE: 0,
 	CRUMBS: 4,
+	LEVEL: 1,
 
+
+	init: function(levelNumber) {
+		if (levelNumber)
+			this.LEVEL = levelNumber;
+		console.log(this.LEVEL);
+	},
 
 	create: function() {
 
@@ -69,15 +76,22 @@ TopDownGame.Game.prototype = {
 		// TEXT
 
     	this.behindTextGroup = this.game.add.group();
-	    // this.crumbsText = this.game.add.text(16.5, 16.5, this.player.crumbsLeft + ' CRUMBS LEFT', { font: 'pixeled', fontSize: '5px', fill: '#fff' });
+
+	    // display the number of crumbs left
     	this.crumbsText = this.game.add.bitmapText(8, 8, 'pixeled', '', 6);
     	this.crumbsText.setText(this.player.crumbsLeft + ' CRUMBS LEFT');
     	this.crumbsText.fixedToCamera = true;
 
-    	// this.alertText = this.game.add.text(this.game.width/2, this.game.height/2, "", { fontSize: '12px', fill: '#fff', align: 'center'});
+    	// for alerts in the middle of the screen
     	this.alertText = this.game.add.bitmapText(this.game.width/2, this.game.height/2, 'pixeled', '', 6);
     	this.alertText.anchor.setTo(0.5);
     	this.alertText.fixedToCamera = true;
+
+    	// display level number
+    	this.levelText = this.game.add.bitmapText(this.game.width - 8, 8, 'pixeled', '', 6);
+    	this.levelText.anchor.setTo(1, 0);
+    	this.levelText.setText('LEVEL ' + this.LEVEL);
+    	this.levelText.fixedToCamera = true;
 
 	},
 
@@ -442,10 +456,12 @@ TopDownGame.Game.prototype = {
 	touchEnemy: function(player, enemy) {
 		this.alertText.text = "YOU DIED";
 		this.STAGE = 2;
+		this.finishLevel();
 	},
 
 	openDoor: function(player, door) {
 		this.alertText.text = "YOU ESCAPED";
+		this.finishLevel();
 	},
 
 	addMarkerToQueue: function(player, marker) {
@@ -472,5 +488,11 @@ TopDownGame.Game.prototype = {
 			marker.frame = 3;
 			marker.direction = player.direction;
 		}
-	}
+	},
+
+	finishLevel: function() {
+		this.game.time.events.add(2000, function() {
+    		this.state.start('Game', true, false, this.LEVEL + 1); // 1 is level number
+		}, this);
+	},
 }

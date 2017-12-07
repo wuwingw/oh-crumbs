@@ -35,6 +35,6 @@ TopDownGame.Preload.prototype = {
     
   },
   create: function() {
-    this.state.start('Game');
+    this.state.start('Game', true, false, 1); // 1 is level number
   }
 };
