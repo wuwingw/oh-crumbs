@@ -29,7 +29,7 @@ var Generator = (function() {
 		[0, 1]
 	]
 
-	var createMap = function(n, tunnelNo, tunnelLength) {
+	var createMap = function(n, tunnelNo, tunnelMin, tunnelMax) {
 
 		var map = createGrid(n, 1); // create nxn grid of 1s
 		
@@ -56,8 +56,8 @@ var Generator = (function() {
 			console.log("direction " + currentDirection[0] + ", " + currentDirection[1]);
 
 			// pick a tunnel length
-			// var length = Math.ceil(Math.random() * tunnelLength);
-			var length = tunnelLength;
+			var length = Math.ceil(Math.random() * (tunnelMax - tunnelMin)) + tunnelMin;
+			// var length = tunnelLength;
 
 			// dig the tunnel
 			var dugLength = -1;
