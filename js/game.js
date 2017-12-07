@@ -133,6 +133,11 @@ TopDownGame.Game.prototype = {
 				this.player.frame = 0;
 				this.player.direction = 'right';
 			}
+
+			if (this.game.input.activePointer.isDown) {
+				// TODO: player direction
+				this.game.physics.arcade.moveToPointer(this.player, this.PLAYER_SPEED);
+			}
 		}
 
 		// FOG

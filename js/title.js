@@ -18,10 +18,16 @@ TopDownGame.Title.prototype = {
       // this.treasure.anchor.setTo(0.5);
   },
 
+  startGame: function() {
+      this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
+  },
+
   update: function() {
       this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-      this.spaceKey.onDown.add(function() {
-        this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
-      }, this);
+      this.spaceKey.onDown.add(this.startGame, this);
+
+      if(this.game.input.activePointer.justPressed()) {
+        this.game.state.start('Game');
+      }
   }
 };
