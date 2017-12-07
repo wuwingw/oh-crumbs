@@ -24,7 +24,7 @@ TopDownGame.Preload.prototype = {
     this.load.image('crumb', 'assets/images/crumb.png');
     this.load.image('door', 'assets/images/door.png');
     this.load.image('mummy', 'assets/images/mummy.png');
-    this.load.image('fog', 'assets/images/fog2.png'); // the 'fog of war'
+    this.load.image('fog', 'assets/images/fog3.png'); // the 'fog of war'
 
     this.load.spritesheet('player', 'assets/images/player.png', 16, 16);
     this.load.spritesheet('treasure', 'assets/images/treasure.png', 16, 16);
