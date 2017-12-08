@@ -47,7 +47,33 @@ var Generator = (function() {
 		}
 
 		return toReturn;
-	}
+	};
+
+	var markForks = function(map, openCells) {
+		// mark all open cells that are forks with a 3
+
+		var forkCells = [];
+		var newMap = map;
+
+		for (var i = 0; i < openCells.length; i++) {
+			console.log("jere");
+			var openCell = openCells[i];
+
+			var adjacentCells = getAdjacentCells(openCell[0], openCell[1], map.length);
+			var count = 0;
+			for (var j = 0; j < adjacentCells.length; j++) {
+				if (map[adjacentCells[j][0]][adjacentCells[j][1]] == 0)
+					count++;
+			}
+
+			if (count > 2) {
+				forkCells.push(openCell);
+				newMap[openCell[0]][openCell[1]] = 3;
+			}
+		}
+
+		return newMap;
+	};
 
 	var createMap = function(n, tunnelNo, tunnelMin, tunnelMax) {
 
@@ -155,6 +181,10 @@ var Generator = (function() {
 
 		map[randomCell[0]][randomCell[1]] = 2
 		console.log("treasure at " + randomCell[0] + ", " + randomCell[1]);
+
+		
+		// mark forks
+		map = markForks(map, openCells);
 
 		return map;
 

@@ -123,7 +123,7 @@ var Converter = (function() {
 			"x": x,
 			"y": y
 		}
-	}
+	};
 
 	var treasure = function(x, y) {
 		return {
@@ -148,7 +148,7 @@ var Converter = (function() {
 			"x": x,
 			"y": y
 		}
-	}
+	};
 
 	var enemy = function(x, y) {
 		return {
@@ -173,7 +173,32 @@ var Converter = (function() {
 			"x": x,
 			"y": y
 		}
-	}
+	};
+
+	var fork = function(x, y, id) {
+		return {
+			"gid":12,
+			"height":16,
+			"id":id,
+			"name":"",
+			"properties":
+				{
+					 "sprite":"none",
+					 "type":"fork",
+				},
+			"propertytypes":
+				{
+					 "sprite":"string",
+					 "type":"string"
+				},
+			"rotation":0,
+			"type":"",
+			"visible":true,
+			"width":16,
+			"x": x,
+			"y": y
+		}
+	};
 
 	var convertMapToTileMap = function(m) {
 		var map = m;
@@ -181,19 +206,31 @@ var Converter = (function() {
 		// add 2 to grid dimensions - for the border
 		var tilemap = template(map.length + 2);
 
-		// find the treasure first
+		// find the treasure first, and the forks
 		var treasureRow, treasureCol;
+		var forkCells = [];
 		for (var row = 0; row < map.length; row++) {
-			if (map[row].indexOf(2) > -1) {
-				treasureCol = map[row].indexOf(2);
-				treasureRow = row;
-				break;
+			// if (map[row].indexOf(2) > -1) {
+			// 	treasureCol = map[row].indexOf(2);
+			// 	treasureRow = row;
+			// 	break;
+			// }
+			var currentRow = map[row];
+			for (var col = 0; col < map.length; col++) {
+				if (currentRow[col] == 2) {
+					// treasure
+					treasureRow = row+1;
+					treasureCol = col+1;
+				} else if (currentRow[col] == 3) {
+					// fork
+					forkCells.push([row+1, col+1]);
+				}
 			}
 		}
-		treasureRow++;
-		treasureCol++;
+		console.log("fokr");
+		console.log(forkCells);
 
-		// convert 1s to innerwall
+		// convert 1s to innerwall, and everything else to 0
 		for (var row = 0; row < map.length; row++) {
 			map[row] = map[row].map(function(e) {
 				return (e == 1) ? innerWall : 0
@@ -242,6 +279,14 @@ var Converter = (function() {
 		// enemy spawns on top of treasure
 		var e = enemy(16*treasureCol, 16*(treasureRow+1));
 		objects.push(e);
+
+		// forks
+		var id = 5;
+		for (var i = 0; i < forkCells.length; i++) {
+			var f = fork(16*forkCells[i][1], 16*(forkCells[i][0]+1), id);
+			objects.push(f);
+			id++;
+		}
 
 		// put objects array into tilemap json
 		tilemap.layers[2].objects = objects;
