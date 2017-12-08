@@ -264,7 +264,7 @@ TopDownGame.Game.prototype = {
 					if (enemy.body.blocked[enemy.direction]) {
 						// we've hit a wall
 						
-						if (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16) {
+						if (enemy.lastCollisionPosition && (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16)) {
 							// new collision
 							enemy.directionsToTry = this.directionsToTry(enemy.direction);
 						}
@@ -388,7 +388,9 @@ TopDownGame.Game.prototype = {
 
 	    this.enemies.forEach(function(enemy){
  			enemy.body.setSize(14, 14, 1, 1); // more forgiving collision
- 			enemy.inRoom = true;
+ 			enemy.inRoom = false; // no rooms anymore
+ 			enemy.direction = 'right'; // TODO: towards player
+ 			enemy.directionsToTry = this.directionsToTry(enemy.direction);
 	    }, this);	
 	},
 
