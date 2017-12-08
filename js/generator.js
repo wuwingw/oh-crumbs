@@ -78,6 +78,10 @@ var Generator = (function() {
 		return newMap;
 	};
 
+	var cellEquals = function(a, b) {
+		return a[0] == b[0] && a[1] == b[1];
+	};
+
 	var createMap = function(n, tunnelNo, tunnelMin, tunnelMax) {
 
 		var map = createGrid(n, 1); // create nxn grid of 1s
@@ -117,15 +121,27 @@ var Generator = (function() {
 				// check how many NESW neighbour cells are already open
 				var adjacentCells = getAdjacentCells(currentRow, currentCol, n);
 				var count = 0;
+				var isTunnel = 0;
+				var nextCell = [currentRow + currentDirection[1], currentCol + currentDirection[0]];
+				var prevCell = [currentRow - currentDirection[1], currentCol - currentDirection[0]];
 				for (var i = 0; i < adjacentCells.length; i++) {
-					if (map[adjacentCells[i][0]][adjacentCells[i][1]] == 0)
+					if (map[adjacentCells[i][0]][adjacentCells[i][1]] == 0) {
 						count++;
+
+						if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], nextCell) || cellEquals([adjacentCells[i][0],adjacentCells[i][1]], prevCell))
+							isTunnel++;
+					}
+
 				}
 
-				// only dig if the cell has 1 or fewer adjacent open cells, and is actually connected
-				if (count < 2 && count > 0) {
+				console.log("tunnel " + (count == 2 && isTunnel == 2));
+
+				// only dig if the cell has 1 or fewer adjacent open cells, or is a tunnel
+				// and is actually connected
+				if ((count < 2 && count > 0) || (count == 2 && isTunnel == 2)) {
+					if (map[currentRow][currentCol] != 0)
+						dugCells.push([currentRow, currentCol]);
 					map[currentRow][currentCol] = 0;
-					dugCells.push([currentRow, currentCol]);
 					lastOpenCell = [currentRow, currentCol];
 				}
 				
@@ -149,14 +165,14 @@ var Generator = (function() {
 			}
 
 			// is this just an unnecessary alcove
-			// if (dugCells.length == 1 && !nextCellIsOpen) {
+			// if (dugCells.length == 1) {
 			// 	// undo it
-			// 	console.log("hm");
+			// 	console.log("hm " + dugCells[0][0] + ", " + dugCells[0][1]);
 			// 	map[dugCells[0][0]][dugCells[0][1]] = 1;
 			// 	dugCells = [];
 			// 	dugLength = 0;
-			// 	currentRow = startingPoint[0];
-			// 	currentCol = startingPoint[1];
+			// 	currentRow = startingPoint[1];
+			// 	currentCol = startingPoint[0];
 			// }
 
 			// store the cells we've dug
