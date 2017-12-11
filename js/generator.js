@@ -122,7 +122,7 @@ var Generator = (function() {
 				// check how many NESW neighbour cells are already open
 				var adjacentCells = getAdjacentCells(currentRow, currentCol, n);
 				var count = 0;
-				var isTunnel = 0;
+				var tunnelCount = 0;
 				var nextCell = [currentRow + currentDirection[1], currentCol + currentDirection[0]];
 				var prevCell = [currentRow - currentDirection[1], currentCol - currentDirection[0]];
 				for (var i = 0; i < adjacentCells.length; i++) {
@@ -130,16 +130,19 @@ var Generator = (function() {
 						count++;
 
 						if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], nextCell) || cellEquals([adjacentCells[i][0],adjacentCells[i][1]], prevCell))
-							isTunnel++;
+							tunnelCount++;
 					}
 
 				}
 
-				// console.log("tunnel " + (count == 2 && isTunnel == 2));
+				var isTunnel = false;
+				if (count == 2 && tunnelCount == 2) { // this is a tunnel joining with another
+					isTunnel = (Math.random() > 0.75); // quarter chance of being a dead end instead
+				}
 
 				// only dig if the cell has 1 or fewer adjacent open cells, or is a tunnel
 				// and is actually connected
-				if ((count < 2 && count > 0) || (count == 2 && isTunnel == 2)) {
+				if ((count < 2 && count > 0) || isTunnel) {
 					if (map[currentRow][currentCol] != 0)
 						dugCells.push([currentRow, currentCol]);
 					map[currentRow][currentCol] = 0;
@@ -164,17 +167,6 @@ var Generator = (function() {
 
 				dugLength++;
 			}
-
-			// is this just an unnecessary alcove
-			// if (dugCells.length == 1) {
-			// 	// undo it
-			// 	console.log("hm " + dugCells[0][0] + ", " + dugCells[0][1]);
-			// 	map[dugCells[0][0]][dugCells[0][1]] = 1;
-			// 	dugCells = [];
-			// 	dugLength = 0;
-			// 	currentRow = startingPoint[1];
-			// 	currentCol = startingPoint[0];
-			// }
 
 			// store the cells we've dug
 			for (var i = 0; i < dugCells.length; i++)
