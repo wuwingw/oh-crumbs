@@ -121,6 +121,12 @@ TopDownGame.Game.prototype = {
     	this.levelText.setText('LEVEL ' + this.LEVEL);
     	this.levelText.fixedToCamera = true;
 
+
+		// FADE IN
+		this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
+		this.black.anchor.setTo(0.5);
+		// fade in
+		this.game.add.tween(this.black).to( { alpha: 0}, 1000, Phaser.Easing.Linear.None, true);
 	},
 
 	update: function() {
@@ -211,7 +217,9 @@ TopDownGame.Game.prototype = {
 					enemy.body.velocity.y = 0}, this);
 			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
 			this.game.physics.arcade.collide(this.enemies, this.doors);
-			this.game.physics.arcade.overlap(this.player, this.enemies, this.touchEnemy, null, this);
+
+			if (this.STAGE != 2)
+				this.game.physics.arcade.overlap(this.player, this.enemies, this.touchEnemy, null, this);
 
 		}
 
@@ -475,7 +483,7 @@ TopDownGame.Game.prototype = {
 			this.STAGE = 2;
 			this.finishLevel(-this.player.crumbsLeft);			
 		} else {
-			this.alertText.text = "YOU DIED\n\nGAME OVER";
+			this.alertText.text = "YOU DIED WITH NO CRUMBS\n\nGAME OVER";
 			this.STAGE = 2;
 			this.game.time.events.add(2000, function() {
 				this.finishGame();
@@ -524,12 +532,18 @@ TopDownGame.Game.prototype = {
 	},
 
 	finishGame: function() {
-		this.alertText.text = "YOU REACHED LEVEL " + this.LEVEL + "\n\ntry again?";
+		this.alertText.text = "YOU REACHED LEVEL " + this.LEVEL + "\n\nplay again?";
 
 		// turn screen black
-		this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
-		this.black.anchor.setTo(0.5);
-		this.behindTextGroup.add(this.black);
+		// this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
+		// this.black.anchor.setTo(0.5);
+		// this.black.alpha = 0;
+		// this.behindTextGroup.add(this.black);
+
+		// fade in
+		this.black.x = this.player.x;
+		this.black.y = this.player.y;
+		this.game.add.tween(this.black).to( { alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
 
 		this.spaceKey.onDown.add(this.goToTitle, this);	
 	},
