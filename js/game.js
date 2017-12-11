@@ -244,7 +244,7 @@ TopDownGame.Game.prototype = {
 				if (enemy.body.blocked[enemy.direction]) {
 					// we've hit a wall
 					
-					if (enemy.lastCollisionPosition && (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16)) {
+					if (enemy.lastCollisionPosition && (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 10 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 10)) {
 						// new collision, so reset the directions to try
 						console.log("New collision facing " + enemy.direction);
 						enemy.directionsToTry = this.directionsToTry(enemy.direction);
