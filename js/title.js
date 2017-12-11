@@ -20,7 +20,7 @@ TopDownGame.Title.prototype = {
   },
 
   startGame: function() {
-      this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
+      this.state.start('Game', true, false, 1, undefined); // 1 is level number, 4 is crumbs
   },
 
   update: function() {

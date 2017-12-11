@@ -149,10 +149,14 @@ TopDownGame.Game.prototype = {
 				this.player.frame = 0;
 				this.player.direction = 'right';
 			}
+		}
 
-			if (this.game.input.activePointer.isDown) {
+		if (this.game.input.activePointer.isDown) {
+			if (this.STAGE < 2) {
 				// TODO: player direction on markers
-				this.game.physics.arcade.moveToPointer(this.player, this.PLAYER_SPEED);
+				this.game.physics.arcade.moveToPointer(this.player, this.PLAYER_SPEED);				
+			} else {
+				this.goToTitle();
 			}
 		}
 
@@ -466,9 +470,19 @@ TopDownGame.Game.prototype = {
 	},
 
 	touchEnemy: function(player, enemy) {
-		this.alertText.text = "YOU DIED";
-		this.STAGE = 2;
-		this.finishLevel(0);
+		if (this.player.crumbsLeft > 0) {
+			this.alertText.text = "YOU DIED\n\nYOU LOSE ALL YOUR CRUMBS";
+			this.STAGE = 2;
+			this.finishLevel(-this.player.crumbsLeft);			
+		} else {
+			this.alertText.text = "YOU DIED\n\nGAME OVER";
+			this.STAGE = 2;
+			this.game.time.events.add(2000, function() {
+				this.finishGame();
+			}, this);
+
+		}
+
 	},
 
 	openDoor: function(player, door) {
@@ -507,5 +521,20 @@ TopDownGame.Game.prototype = {
 		this.game.time.events.add(2000, function() {
     		this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft + extraCrumbs); // levelnumber, crumbsleft
 		}, this);
+	},
+
+	finishGame: function() {
+		this.alertText.text = "YOU REACHED LEVEL " + this.LEVEL + "\n\ntry again?";
+
+		// turn screen black
+		this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
+		this.black.anchor.setTo(0.5);
+		this.behindTextGroup.add(this.black);
+
+		this.spaceKey.onDown.add(this.goToTitle, this);	
+	},
+
+	goToTitle: function() {
+		this.state.start('Title');
 	},
 }
