@@ -76,6 +76,14 @@ TopDownGame.Game.prototype = {
 		// INPUT
 		
 		this.cursors = this.game.input.keyboard.createCursorKeys();
+
+		this.wasd = {
+			up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
+			down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
+			left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+			right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
+		};
+
 		this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		this.spaceKey.onDown.add(this.dropCrumb, this);
 
@@ -123,27 +131,27 @@ TopDownGame.Game.prototype = {
 		this.player.body.velocity.x = 0;
 
 		if (this.STAGE < 2) {
-			if(this.cursors.up.isDown) {
+			if(this.cursors.up.isDown || this.wasd.up.isDown) {
 				this.player.body.velocity.y -= this.PLAYER_SPEED;
 				this.player.direction = 'up';
 			}
-			else if(this.cursors.down.isDown) {
+			else if(this.cursors.down.isDown || this.wasd.down.isDown) {
 				this.player.body.velocity.y += this.PLAYER_SPEED;
 				this.player.direction = 'down';
 			}
-			else if(this.cursors.left.isDown) {
+			else if(this.cursors.left.isDown || this.wasd.left.isDown) {
 				this.player.body.velocity.x -= this.PLAYER_SPEED;
 				this.player.frame = 1;
 				this.player.direction = 'left';
 			}
-			else if(this.cursors.right.isDown) {
+			else if(this.cursors.right.isDown || this.wasd.right.isDown) {
 				this.player.body.velocity.x += this.PLAYER_SPEED;
 				this.player.frame = 0;
 				this.player.direction = 'right';
 			}
 
 			if (this.game.input.activePointer.isDown) {
-				// TODO: player direction
+				// TODO: player direction on markers
 				this.game.physics.arcade.moveToPointer(this.player, this.PLAYER_SPEED);
 			}
 		}

@@ -8,7 +8,8 @@ TopDownGame.Title.prototype = {
       this.titleText = this.game.add.bitmapText(this.game.width/2, this.game.height/2 - 16, 'pixeled', 'O H   C R U M B S', 6);
       this.titleText.anchor.setTo(0.5);
 
-      this.subtitleText = this.game.add.bitmapText(this.game.width/2, this.game.height/2 + 16, 'pixeled', 'hit space', 6);
+      this.subtitleText = this.game.add.bitmapText(this.game.width/2, this.game.height/2 + 16, 'pixeled', 'WASD to move\nSPACE to drop a crumb', 6);
+      this.subtitleText.align = 'center';
       this.subtitleText.anchor.setTo(0.5);
 
       this.crumb = this.game.add.sprite(this.game.width/2 - 24, this.game.height/2 - 16, 'crumb');
