@@ -25,9 +25,10 @@ TopDownGame.Preload.prototype = {
     this.load.image('door', 'assets/images/door.png');
     this.load.image('mummy', 'assets/images/mummy.png');
     this.load.image('fog', 'assets/images/fog3.png'); // the 'fog of war'
+    this.load.image('fog_small', 'assets/images/fog4.png'); // smaller visible radius
 
     this.load.spritesheet('player', 'assets/images/player.png', 16, 16);
-    this.load.spritesheet('treasure', 'assets/images/treasure.png', 16, 16);
+    this.load.spritesheet('treasure', 'assets/images/treasure.png', 16, 16, 2);
     // this.load.spritesheet('none', 'assets/images/arrow.png', 16, 16);
 
     this.load.image('greencup', 'assets/images/greencup.png');
