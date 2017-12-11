@@ -4,20 +4,23 @@ TopDownGame.Game = function(){};
 
 TopDownGame.Game.prototype = {
 
-	PLAYER_SPEED: 80,
-	ENEMY_SPEED: 60,
-	EPSILON: 2,
-	STAGE: 0,
-	CRUMBS: 4,
-	LEVEL: 1,
+	PLAYER_SPEED: 80, // player movement speed
+	ENEMY_SPEED: 60, // enemy movement speed
+	EPSILON: 2, // used for enemy fork collision 
+	STAGE: 0, // 0: finding treasure, 1: found treasure, 2: dead/found door
+	CRUMBS: 4, // starting number of crumbs
+	LEVEL: 1, // level number
 
 
 	init: function(levelNumber, crumbsLeft) {
-		if (levelNumber)
+		if (levelNumber) {
 			this.LEVEL = levelNumber;
+			this.ENEMY_SPEED = 50 + (levelNumber * 5); // enemy moves faster as you go
+		}
 		if (crumbsLeft)
 			this.CRUMBS = crumbsLeft;
-		console.log(this.LEVEL);
+		console.log("LEVEL: " + this.LEVEL);
+		console.log("ENEMY SPEED: " + this.ENEMY_SPEED);
 	},
 
 	preload: function() {
@@ -83,7 +86,10 @@ TopDownGame.Game.prototype = {
 
 		// FOG
 
-		this.fog = this.game.add.sprite(0, 0, 'fog');
+		if (this.LEVEL < 5)
+			this.fog = this.game.add.sprite(0, 0, 'fog');
+		else
+			this.fog = this.game.add.sprite(0, 0, 'fog_small');
 		this.fog.anchor.setTo(0.5);
 
 		// TEXT
@@ -453,13 +459,13 @@ TopDownGame.Game.prototype = {
 	touchEnemy: function(player, enemy) {
 		this.alertText.text = "YOU DIED";
 		this.STAGE = 2;
-		this.finishLevel();
+		this.finishLevel(0);
 	},
 
 	openDoor: function(player, door) {
-		this.alertText.text = "YOU ESCAPED";
+		this.alertText.text = "YOU ESCAPED\n\nYOU FIND 2 MORE CRUMBS";
 		this.STAGE = 2;
-		this.finishLevel();
+		this.finishLevel(2);
 	},
 
 	addMarkerToQueue: function(player, marker) {
@@ -488,9 +494,9 @@ TopDownGame.Game.prototype = {
 		}
 	},
 
-	finishLevel: function() {
+	finishLevel: function(extraCrumbs) {
 		this.game.time.events.add(2000, function() {
-    		this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft); // levelnumber, crumbsleft
+    		this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft + extraCrumbs); // levelnumber, crumbsleft
 		}, this);
 	},
 }
