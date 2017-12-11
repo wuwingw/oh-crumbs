@@ -22,7 +22,7 @@ TopDownGame.Game.prototype = {
 
 	preload: function() {
 		// GENERATE LEVEL
-		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(30, 100, 4, 6));
+		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(25, 100, 4, 7));
 		console.log(this.levelJSON); // for debugging
 		// this.game.cache.addJSON('levelJSON', null, this.levelJSON);
 		this.load.tilemap('level', null, this.levelJSON, Phaser.Tilemap.TILED_JSON);
@@ -219,80 +219,62 @@ TopDownGame.Game.prototype = {
 	},
 
 	moveEnemy: function(enemy) {
-		var nextMarker = this.player.markerQueue.length ? this.player.markerQueue[0] : undefined;
+		// use enemy.direction to set the enemy's velocity
+		var direction = this.directionToVelocity(enemy.direction);
+		enemy.body.velocity.x = direction[0]*this.ENEMY_SPEED;
+		enemy.body.velocity.y = direction[1]*this.ENEMY_SPEED;
 
-		if (enemy.inRoom) {
+		if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) {
+			// the enemy is touching a fork
 
-			if (nextMarker) {
-				// player has left room via nextMarker
-				this.game.physics.arcade.moveToObject(enemy, nextMarker, this.ENEMY_SPEED);
-
-				// check if we've left the room
-				this.checkReachedMarker(enemy, nextMarker, false);				
-			} else {
-				// player is in same room
-				this.game.physics.arcade.moveToObject(enemy, this.player, this.ENEMY_SPEED);
+			// only change direction when we reach the centre of the fork
+			if (marker.direction && (Math.abs(enemy.x - marker.x) < this.EPSILON) && (Math.abs(enemy.y - marker.y)) < this.EPSILON) {
+				enemy.direction = marker.direction;
 			}
+		}, null, this)) {
 
-		} else if (!enemy.inRoom) {
+			// handled inside callback
 
-			var direction = this.directionToVelocity(enemy.direction);
-			enemy.body.velocity.x = direction[0]*this.ENEMY_SPEED;
-			enemy.body.velocity.y = direction[1]*this.ENEMY_SPEED;
+		} else {
 
-			if (nextMarker && this.game.physics.arcade.overlap(enemy, nextMarker)) {
+			// not touching a fork, so just follow the corridor
 
-				// check if we've entered a room
-				this.checkReachedMarker(enemy, nextMarker, true);
+			if (this.game.physics.arcade.collide(enemy, this.blockedLayer)) {
 
-			} else if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) { 
-				// console.log("touching fork");
-				if (marker.direction && (Math.abs(enemy.x - marker.x) < this.EPSILON) && (Math.abs(enemy.y - marker.y)) < this.EPSILON) {
-					enemy.direction = marker.direction;
-				}
-			}, null, this)) {
-
-				// change direction if we walk over (the centre of) a fork marker
-				// handled in the callback
-
-			} else {
-
-				// just follow the corridor
-
-				if (this.game.physics.arcade.collide(enemy, this.blockedLayer)) {
-
-					if (enemy.body.blocked[enemy.direction]) {
-						// we've hit a wall
-						
-						if (enemy.lastCollisionPosition && (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16)) {
-							// new collision
-							enemy.directionsToTry = this.directionsToTry(enemy.direction);
-						}
-
-						enemy.lastCollisionPosition = [enemy.x, enemy.y]
-		
-						// no list? we're in a dead end.
-						if (!enemy.directionsToTry.length) {
-							enemy.body.velocity.x = 0;
-							enemy.body.velocity.y = 0;
-						}
-
-						// try going in each direction (if we have a list)
-						var i = 0;
-						for (i = 0; i < enemy.directionsToTry.length; i++) {
-							var direction = enemy.directionsToTry[i];
-							if (direction != enemy.direction) {
-								enemy.direction = direction;
-								break;
-							}
-						}
-						enemy.directionsToTry.splice(i, 1); // remove this direction
-						// console.log(enemy.directionsToTry);
+				if (enemy.body.blocked[enemy.direction]) {
+					// we've hit a wall
+					
+					if (enemy.lastCollisionPosition && (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 16 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 16)) {
+						// new collision, so reset the directions to try
+						console.log("New collision facing " + enemy.direction);
+						enemy.directionsToTry = this.directionsToTry(enemy.direction);
 					}
-				}
 
+					// update collision position so we can compare whether next collision is new
+					enemy.lastCollisionPosition = [enemy.x, enemy.y]
+
+					console.log(enemy.directionsToTry);
+	
+					// no list? we're in a dead end.
+					if (!enemy.directionsToTry.length) {
+						// console.log("dead end")
+						enemy.body.velocity.x = 0;
+						enemy.body.velocity.y = 0;
+					}
+
+					// try going in each direction (if we have a list)
+					var i = 0;
+					for (i = 0; i < enemy.directionsToTry.length; i++) {
+						var direction = enemy.directionsToTry[i];
+						if (direction != enemy.direction) {
+							enemy.direction = direction;
+							break;
+						}
+					}
+					enemy.directionsToTry.splice(i, 1); // remove this direction
+				}
 			}
-			
+
 		}
 
 	},
@@ -315,8 +297,8 @@ TopDownGame.Game.prototype = {
 			return (d != direction) && (d != this.opposite(direction));
 		}, this);
 
-		// console.log("try!");
-		// console.log(directions);
+		console.log("directionsToTry with " + direction);
+		console.log(directions);
 		return directions;
 	},
 
@@ -391,6 +373,7 @@ TopDownGame.Game.prototype = {
  			enemy.inRoom = false; // no rooms anymore
  			enemy.direction = 'right'; // TODO: towards player
  			enemy.directionsToTry = this.directionsToTry(enemy.direction);
+ 			enemy.lastCollisionPosition = [enemy.x, enemy.y];
 	    }, this);	
 	},
 
