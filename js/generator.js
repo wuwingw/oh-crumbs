@@ -56,7 +56,6 @@ var Generator = (function() {
 		var newMap = map;
 
 		for (var i = 0; i < openCells.length; i++) {
-			console.log("jere");
 			var openCell = openCells[i];
 			if (map[openCell[0]][openCell[1]] == 2) // this is the treasure, don't mark it
 				continue;
@@ -65,7 +64,9 @@ var Generator = (function() {
 			var count = 0;
 			for (var j = 0; j < adjacentCells.length; j++) {
 				if (map[adjacentCells[j][0]][adjacentCells[j][1]] == 0
-					|| map[adjacentCells[j][0]][adjacentCells[j][1]] == 2) // treasure is open too
+					|| map[adjacentCells[j][0]][adjacentCells[j][1]] == 2 
+					|| map[adjacentCells[j][0]][adjacentCells[j][1]] == 3)
+					// 2 is treasure; 3 is another fork; both count as being open
 					count++;
 			}
 
@@ -134,7 +135,7 @@ var Generator = (function() {
 
 				}
 
-				console.log("tunnel " + (count == 2 && isTunnel == 2));
+				// console.log("tunnel " + (count == 2 && isTunnel == 2));
 
 				// only dig if the cell has 1 or fewer adjacent open cells, or is a tunnel
 				// and is actually connected
