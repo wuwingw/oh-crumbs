@@ -58,7 +58,7 @@ var Generator = (function() {
 		for (var i = 0; i < openCells.length; i++) {
 			console.log("jere");
 			var openCell = openCells[i];
-			if (openCell == 2) // this is the treasure, don't mark it
+			if (map[openCell[0]][openCell[1]] == 2) // this is the treasure, don't mark it
 				continue;
 
 			var adjacentCells = getAdjacentCells(openCell[0], openCell[1], map.length);
