@@ -104,6 +104,7 @@ TopDownGame.Game.prototype = {
     	// for alerts in the middle of the screen
     	this.alertText = this.game.add.bitmapText(this.game.width/2, this.game.height/2 + 48, 'pixeled', '', 6);
     	this.alertText.anchor.setTo(0.5);
+    	this.alertText.align = 'center';
     	this.alertText.fixedToCamera = true;
 
     	// display level number
