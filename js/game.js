@@ -13,7 +13,7 @@ TopDownGame.Game.prototype = {
 
 
 	init: function(levelNumber, crumbsLeft) {
-		if (levelNumber) {
+		if (levelNumber !== undefined) {
 			this.LEVEL = levelNumber;
 			this.ENEMY_SPEED = 50 + (levelNumber * 5); // enemy moves faster as you go
 		}
@@ -125,6 +125,7 @@ TopDownGame.Game.prototype = {
 		// FADE IN
 		this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
 		this.black.anchor.setTo(0.5);
+		this.behindTextGroup.add(this.black);
 		// fade in
 		this.game.add.tween(this.black).to( { alpha: 0}, 1000, Phaser.Easing.Linear.None, true);
 	},
@@ -526,6 +527,10 @@ TopDownGame.Game.prototype = {
 	},
 
 	finishLevel: function(extraCrumbs) {
+		// fade to black
+		this.game.add.tween(this.black).to( { alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
+
+		// reset level after 2s
 		this.game.time.events.add(2000, function() {
     		this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft + extraCrumbs); // levelnumber, crumbsleft
 		}, this);
