@@ -17,7 +17,7 @@ TopDownGame.Game.prototype = {
 			this.LEVEL = levelNumber;
 			this.ENEMY_SPEED = 50 + (levelNumber * 5); // enemy moves faster as you go
 		}
-		if (crumbsLeft)
+		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
 		console.log("LEVEL: " + this.LEVEL);
 		console.log("ENEMY SPEED: " + this.ENEMY_SPEED);
