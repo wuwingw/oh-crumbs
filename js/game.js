@@ -371,7 +371,7 @@ TopDownGame.Game.prototype = {
 	    this.enemies.forEach(function(enemy){
  			enemy.body.setSize(14, 14, 1, 1); // more forgiving collision
  			enemy.inRoom = false; // no rooms anymore
- 			enemy.direction = 'right'; // TODO: towards player
+ 			enemy.direction = 'right'; // will get updated immediately by treasure
  			enemy.directionsToTry = this.directionsToTry(enemy.direction);
  			enemy.lastCollisionPosition = [enemy.x, enemy.y];
 	    }, this);	
@@ -424,7 +424,8 @@ TopDownGame.Game.prototype = {
 	},
 
 	findTreasure: function(player, treasure) {
-		if (treasure.frame == 0) {
+		if (this.STAGE == 0) { // finding treasure for first time
+
 			treasure.frame = 1; // open the chest
 
 			this.game.time.events.add(3000, function() {
@@ -440,6 +441,12 @@ TopDownGame.Game.prototype = {
 			this.enemies = this.game.add.group();
 			this.STAGE = 1; // update game stage
 			player.markerQueue = []; // initialise empty queue
+			this.forkMarkers.add(treasure); // treasure is now a fork marker
+
+		} else { // already found treasure; treat it like a fork marker
+
+			treasure.direction = player.direction;
+
 		}
 	},
 
