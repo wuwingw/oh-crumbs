@@ -1,6 +1,6 @@
 var TopDownGame = TopDownGame || {};
 
-TopDownGame.Game = function(){};
+TopDownGame.Game = function() {};
 
 TopDownGame.Game.prototype = {
 
@@ -19,14 +19,17 @@ TopDownGame.Game.prototype = {
 		}
 		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
+
 		console.log("LEVEL: " + this.LEVEL);
 		console.log("ENEMY SPEED: " + this.ENEMY_SPEED);
 	},
 
 	preload: function() {
-		// GENERATE LEVEL
+		// generate level
 		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(25, 60, 4, 7));
 		console.log(this.levelJSON); // for debugging
+
+		// load tilemap from generated json
 		this.load.tilemap('level', null, this.levelJSON, Phaser.Tilemap.TILED_JSON);
 	},
 
@@ -36,8 +39,7 @@ TopDownGame.Game.prototype = {
 
 		// TILEMAP
 
-		// this.map = this.game.add.tilemap('level' + this.LEVEL); // create tilemap from json
-		this.map = this.game.add.tilemap('level');
+		this.map = this.game.add.tilemap('level'); // add the tilemap
 		this.map.addTilesetImage('small_tiles', 'gameTiles'); // add its tileset image
 
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
@@ -49,7 +51,6 @@ TopDownGame.Game.prototype = {
 
 		// ITEMS
 
-		this.createItems();
 		this.createTreasure();
 		this.createDoors();
 		this.createMarkers();
@@ -70,18 +71,18 @@ TopDownGame.Game.prototype = {
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
-		this.player.lastLR = 'right';
+		this.player.lastLR = 'right'; // for animations
 		this.player.crumbsLeft = this.CRUMBS;
 
-		this.player.animations.add('right_idle',[0]);
-		this.player.animations.add('right',[1,2]);
-		this.player.animations.add('left_idle',[3]);
-		this.player.animations.add('left',[4,5]);
+		this.player.animations.add('right_idle', [0]);
+		this.player.animations.add('right', [1, 2]);
+		this.player.animations.add('left_idle', [3]);
+		this.player.animations.add('left', [4, 5]);
 
 		this.player.animations.play('right_idle');
 
 		// INPUT
-		
+
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
 		this.wasd = {
@@ -95,9 +96,10 @@ TopDownGame.Game.prototype = {
 		this.spaceKey.onDown.add(this.dropCrumb, this);
 
 		// CRUMBS
+
 		this.crumbs = this.game.add.group();
 		this.crumbs.enableBody = true;
-		this.behindPlayerGroup.add(this.crumbs);
+		this.behindPlayerGroup.add(this.crumbs); // render behind the player
 
 		// FOG
 
@@ -106,32 +108,33 @@ TopDownGame.Game.prototype = {
 
 		// TEXT
 
-    	this.behindTextGroup = this.game.add.group();
+		this.behindTextGroup = this.game.add.group();
 
-	    // display the number of crumbs left
-    	this.crumbsText = this.game.add.bitmapText(8, 8, 'pixeled', '', 6);
-    	this.crumbsText.setText(this.player.crumbsLeft + ' CRUMBS LEFT');
-    	this.crumbsText.fixedToCamera = true;
+		// display the number of crumbs left
+		this.crumbsText = this.game.add.bitmapText(8, 8, 'pixeled', '', 6);
+		this.crumbsText.setText(this.player.crumbsLeft + ' CRUMBS LEFT');
+		this.crumbsText.fixedToCamera = true;
 
-    	// for alerts in the middle of the screen
-    	this.alertText = this.game.add.bitmapText(this.game.width/2, this.game.height/2 + 48, 'pixeled', '', 6);
-    	this.alertText.anchor.setTo(0.5);
-    	this.alertText.align = 'center';
-    	this.alertText.fixedToCamera = true;
+		// for alerts in the middle of the screen
+		this.alertText = this.game.add.bitmapText(this.game.width / 2, this.game.height / 2 + 48, 'pixeled', '', 6);
+		this.alertText.anchor.setTo(0.5);
+		this.alertText.align = 'center';
+		this.alertText.fixedToCamera = true;
 
-    	// display level number
-    	this.levelText = this.game.add.bitmapText(this.game.width - 8, 8, 'pixeled', '', 6);
-    	this.levelText.anchor.setTo(1, 0);
-    	this.levelText.setText('LEVEL ' + this.LEVEL);
-    	this.levelText.fixedToCamera = true;
-
+		// display level number
+		this.levelText = this.game.add.bitmapText(this.game.width - 8, 8, 'pixeled', '', 6);
+		this.levelText.anchor.setTo(1, 0);
+		this.levelText.setText('LEVEL ' + this.LEVEL);
+		this.levelText.fixedToCamera = true;
 
 		// FADE IN
+
 		this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
 		this.black.anchor.setTo(0.5);
 		this.behindTextGroup.add(this.black);
-		// fade in
-		this.game.add.tween(this.black).to( { alpha: 0}, 1000, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(this.black).to({
+			alpha: 0
+		}, 1000, Phaser.Easing.Linear.None, true);
 	},
 
 	update: function() {
@@ -144,23 +147,20 @@ TopDownGame.Game.prototype = {
 		var animationSpeed = 7;
 
 		if (this.STAGE < 2) {
-			if(this.cursors.up.isDown || this.wasd.up.isDown) {
+			if (this.cursors.up.isDown || this.wasd.up.isDown) {
 				this.player.body.velocity.y -= this.PLAYER_SPEED;
 				this.player.animations.play(this.player.lastLR, animationSpeed);
 				this.player.direction = 'up';
-			}
-			else if(this.cursors.down.isDown || this.wasd.down.isDown) {
+			} else if (this.cursors.down.isDown || this.wasd.down.isDown) {
 				this.player.body.velocity.y += this.PLAYER_SPEED;
 				this.player.animations.play(this.player.lastLR, animationSpeed);
 				this.player.direction = 'down';
-			}
-			else if(this.cursors.left.isDown || this.wasd.left.isDown) {
+			} else if (this.cursors.left.isDown || this.wasd.left.isDown) {
 				this.player.body.velocity.x -= this.PLAYER_SPEED;
 				this.player.animations.play('left', animationSpeed);
 				this.player.direction = 'left';
 				this.player.lastLR = 'left';
-			}
-			else if(this.cursors.right.isDown || this.wasd.right.isDown) {
+			} else if (this.cursors.right.isDown || this.wasd.right.isDown) {
 				this.player.body.velocity.x += this.PLAYER_SPEED;
 				this.player.animations.play('right', animationSpeed);
 				this.player.direction = 'right';
@@ -171,8 +171,9 @@ TopDownGame.Game.prototype = {
 		if (this.game.input.activePointer.isDown) {
 			if (this.STAGE < 2) {
 				// TODO: player direction on markers
-				this.game.physics.arcade.moveToPointer(this.player, this.PLAYER_SPEED);				
+				this.game.physics.arcade.moveToPointer(this.player, this.PLAYER_SPEED);
 			} else {
+				// at the end of the game
 				this.goToTitle();
 			}
 		}
@@ -181,54 +182,48 @@ TopDownGame.Game.prototype = {
 			this.player.animations.play(this.player.lastLR + '_idle');
 		}
 
-		// FOG
+		// FOG (follows player)
 
-		this.fog.x = this.player.x + this.player.width/2;
-		this.fog.y = this.player.y + this.player.height/2;
+		this.fog.x = this.player.x + this.player.width / 2;
+		this.fog.y = this.player.y + this.player.height / 2;
 
 		// COLLISION
 
 		this.game.physics.arcade.collide(this.player, this.blockedLayer);
-		this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
 		this.game.physics.arcade.overlap(this.player, this.treasure, this.findTreasure, null, this);
 
-        // markers
-        if (this.STAGE > 0) {
-        	this.exitMarkers.forEach(function(marker){
-        		if (this.game.physics.arcade.overlap(this.player, marker)) {
-    				this.updateMarkerDirection(this.player, marker);
-        		} else {
-        			marker.overlapped = false;
-        		}
-        	}, this);
+		// markers
+		if (this.STAGE > 0) {
+			// we only update markers once the chase has begun in stage 1
+			this.forkMarkers.forEach(function(marker) {
+				if (this.game.physics.arcade.overlap(this.player, marker)) {
+					this.updateMarkerDirection(this.player, marker);
+				} else {
+					marker.overlapped = false;
+				}
+			}, this);
+		}
 
-        	this.forkMarkers.forEach(function(marker){
-        		if (this.game.physics.arcade.overlap(this.player, marker)) {
-    				this.updateMarkerDirection(this.player, marker);
-        		} else {
-        			marker.overlapped = false;
-        		}
-        	}, this);
-            // this.game.physics.arcade.overlap(this.player, this.exitMarkers, this.updateMarker, null, this);
-        }
-
-        // door
-        if (this.STAGE > 0) {
-        	this.game.physics.arcade.overlap(this.player, this.doors, this.openDoor, null, this);
-        } else {
-        	this.game.physics.arcade.collide(this.player, this.doors);
-        }
+		// door
+		if (this.STAGE > 0) {
+			// can only open the door once the chase has begun
+			this.game.physics.arcade.overlap(this.player, this.doors, this.openDoor, null, this);
+		} else {
+			// otherwise it acts like a wall
+			this.game.physics.arcade.collide(this.player, this.doors);
+		}
 
 		// ENEMIES
 
-		if (this.STAGE > 0) {
+		if (this.STAGE > 0) { // enemy/ies only appear in stage 1
 
 			if (this.STAGE == 1)
 				this.enemies.forEach(this.moveEnemy, this);
 			else
-				this.enemies.forEach(function(enemy){
+				this.enemies.forEach(function(enemy) {
 					enemy.body.velocity.x = 0;
-					enemy.body.velocity.y = 0}, this);
+					enemy.body.velocity.y = 0
+				}, this);
 			this.game.physics.arcade.collide(this.enemies, this.blockedLayer);
 			this.game.physics.arcade.collide(this.enemies, this.doors);
 
@@ -242,8 +237,8 @@ TopDownGame.Game.prototype = {
 	moveEnemy: function(enemy) {
 		// use enemy.direction to set the enemy's velocity
 		var direction = this.directionToVelocity(enemy.direction);
-		enemy.body.velocity.x = direction[0]*this.ENEMY_SPEED;
-		enemy.body.velocity.y = direction[1]*this.ENEMY_SPEED;
+		enemy.body.velocity.x = direction[0] * this.ENEMY_SPEED;
+		enemy.body.velocity.y = direction[1] * this.ENEMY_SPEED;
 
 		if (enemy.direction == 'left')
 			enemy.lastLR = 'left';
@@ -252,14 +247,15 @@ TopDownGame.Game.prototype = {
 		enemy.animations.play(enemy.lastLR, 7);
 
 		if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) {
-			// the enemy is touching a fork
-			// only change direction when enemy is inside marker
-			if (Phaser.Rectangle.containsRect(enemy.body, marker.body)) {
-				enemy.direction = marker.data.direction;
-			} else if (enemy.direction != marker.data.direction) {
-				this.game.physics.arcade.moveToObject(enemy, marker, 50);
-			} 
-		}, null, this)) {
+				// the enemy is touching a fork
+				// only change direction when enemy is inside marker
+				if (Phaser.Rectangle.containsRect(enemy.body, marker.body)) {
+					enemy.direction = marker.data.direction;
+				} else if (enemy.direction != marker.data.direction) {
+					// we're overlapping but not at the centre; move towards centre
+					this.game.physics.arcade.moveToObject(enemy, marker, 50);
+				}
+			}, null, this)) {
 
 			// handled inside callback
 
@@ -269,23 +265,18 @@ TopDownGame.Game.prototype = {
 
 			if (this.game.physics.arcade.collide(enemy, this.blockedLayer)) {
 
-				if (enemy.body.blocked[enemy.direction]) {
-					// we've hit a wall
-					
+				if (enemy.body.blocked[enemy.direction]) { // we've hit a wall
+
 					if (enemy.lastCollisionPosition && (Math.abs(enemy.x - enemy.lastCollisionPosition[0]) > 10 || Math.abs(enemy.y - enemy.lastCollisionPosition[1]) > 10)) {
 						// new collision, so reset the directions to try
-						console.log("New collision facing " + enemy.direction);
 						enemy.directionsToTry = this.directionsToTry(enemy.direction);
 					}
 
 					// update collision position so we can compare whether next collision is new
 					enemy.lastCollisionPosition = [enemy.x, enemy.y]
 
-					console.log(enemy.directionsToTry);
-	
-					// no list? we're in a dead end.
+					// no list? we're in a dead end (have already tried all directions and failed)
 					if (!enemy.directionsToTry.length) {
-						// console.log("dead end")
 						enemy.body.velocity.x = 0;
 						enemy.body.velocity.y = 0;
 					}
@@ -299,7 +290,8 @@ TopDownGame.Game.prototype = {
 							break;
 						}
 					}
-					enemy.directionsToTry.splice(i, 1); // remove this direction
+					// remove this direction so we don't try it again
+					enemy.directionsToTry.splice(i, 1);
 				}
 			}
 
@@ -320,13 +312,12 @@ TopDownGame.Game.prototype = {
 	},
 
 	directionsToTry: function(direction) {
+		// returns directions orthogonal to supplied direction
 		var directions = ['up', 'right', 'down', 'left'];
 		directions = directions.filter(function(d) {
 			return (d != direction) && (d != this.opposite(direction));
 		}, this);
 
-		console.log("directionsToTry with " + direction);
-		console.log(directions);
 		return directions;
 	},
 
@@ -350,17 +341,6 @@ TopDownGame.Game.prototype = {
 		}
 	},
 
-	createItems: function() {
-		this.items = this.game.add.group();
-		this.items.enableBody = true;
-
-		var item;
-		result = this.findObjectsByType('items', this.map, 'objectsLayer');
-		result.forEach(function(element) {
-			this.createFromTiledObjectToGroup(element, this.items);
-		}, this);
-	},
-
 	createTreasure: function() {
 		result = this.findObjectsByType('treasure', this.map, 'objectsLayer');
 
@@ -374,73 +354,66 @@ TopDownGame.Game.prototype = {
 	},
 
 	createDoors: function() {
-	    this.doors = this.game.add.group();
-	    this.doors.enableBody = true;
-	    result = this.findObjectsByType('door', this.map, 'objectsLayer');
-	 
-	    result.forEach(function(element){
-	      this.createFromTiledObjectToGroup(element, this.doors);
-	    }, this);
+		this.doors = this.game.add.group();
+		this.doors.enableBody = true;
+		result = this.findObjectsByType('door', this.map, 'objectsLayer');
 
-	    this.doors.forEach(function(door){
-	    	door.body.immovable = true;
-	    }, this);
+		result.forEach(function(element) {
+			this.createFromTiledObjectToGroup(element, this.doors);
+		}, this);
+
+		this.doors.forEach(function(door) {
+			door.body.immovable = true; // don't want player to push door
+		}, this);
 	},
 
 	createEnemies: function() {
-		// this.enemies = this.game.add.group();
-		this.behindTextGroup.add(this.enemies);
+		this.behindTextGroup.add(this.enemies); // enemies group created in findTreasure
 		this.enemies.enableBody = true;
-	    result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
-	 
-	    result.forEach(function(element){
-	      this.createFromTiledObjectToGroup(element, this.enemies);
-	    }, this);
+		result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
 
-	    this.enemies.forEach(function(enemy){
- 			enemy.body.setSize(12, 12, 2, 2); // more forgiving collision
- 			enemy.inRoom = false; // no rooms anymore
- 			enemy.direction = 'right'; // will get updated immediately by treasure
- 			enemy.lastLR = 'right'; // for animation
- 			enemy.directionsToTry = this.directionsToTry(enemy.direction);
- 			enemy.lastCollisionPosition = [enemy.x, enemy.y];
+		result.forEach(function(element) {
+			this.createFromTiledObjectToGroup(element, this.enemies);
+		}, this);
 
- 			enemy.animations.add('right', [0,1]);
- 			enemy.animations.add('left', [2,3]);
-	    }, this);	
+		this.enemies.forEach(function(enemy) {
+			enemy.body.setSize(12, 12, 2, 2); // more forgiving collision
+			enemy.direction = 'right'; // will get updated immediately by treasure
+			enemy.lastLR = 'right'; // for animation
+
+			enemy.directionsToTry = this.directionsToTry(enemy.direction);
+			enemy.lastCollisionPosition = [enemy.x, enemy.y];
+
+			enemy.animations.add('right', [0, 1]);
+			enemy.animations.add('left', [2, 3]);
+		}, this);
 	},
 
-    createMarkers: function() {
-        this.exitMarkers = this.game.add.group();
-        this.exitMarkers.enableBody = true;
-        this.forkMarkers = this.game.add.group();
-        this.forkMarkers.enableBody = true;
+	createMarkers: function() {
+		this.forkMarkers = this.game.add.group();
+		this.forkMarkers.enableBody = true;
 
-        result = this.findObjectsByType('exit', this.map, 'objectsLayer');
-        result.forEach(function(element){
-                this.createFromTiledObjectToGroup(element, this.exitMarkers);
-        }, this);
+		result = this.findObjectsByType('fork', this.map, 'objectsLayer');
+		result.forEach(function(element) {
+			this.createFromTiledObjectToGroup(element, this.forkMarkers);
+		}, this);
 
-        result = this.findObjectsByType('fork', this.map, 'objectsLayer');
-        result.forEach(function(element){
-                this.createFromTiledObjectToGroup(element, this.forkMarkers);
-        }, this);
-
-        this.forkMarkers.forEach(function(marker){
-        	marker.data.direction = 'right';
-        }, this);
+		this.forkMarkers.forEach(function(marker) {
+			// initialise each marker with a direction
+			marker.data.direction = 'right';
+		}, this);
 	},
 
 	// find objects in a Tiled layer that contain a property called "type" equal to a certain value
 	findObjectsByType: function(type, map, layer) {
 		var result = new Array();
 
-		map.objects[layer].forEach(function(element){
-			if(element.properties.type === type) {
+		map.objects[layer].forEach(function(element) {
+			if (element.properties.type === type) {
 				//Phaser uses top left, Tiled bottom left so we have to adjust the y position
 				element.y -= map.tileHeight;
 				result.push(element);
-			}      
+			}
 		});
 
 		return result;
@@ -465,15 +438,12 @@ TopDownGame.Game.prototype = {
 		return sprite;
 	},
 
-	collect: function(player, item) {
-		item.destroy();
-	},
-
 	findTreasure: function(player, treasure) {
 		if (this.STAGE == 0) { // finding treasure for first time
 
 			treasure.frame = 1; // open the chest
 
+			// enemies spawn after a short delay
 			this.game.time.events.add(2000, function() {
 				this.createEnemies();
 			}, this);
@@ -483,7 +453,6 @@ TopDownGame.Game.prototype = {
 				this.alertText.text = "";
 			}, this);
 
-			// this.createEnemies(); // time to run!
 			this.enemies = this.game.add.group();
 			this.STAGE = 1; // update game stage
 			this.forkMarkers.add(treasure); // treasure is now a fork marker
@@ -505,14 +474,13 @@ TopDownGame.Game.prototype = {
 		if (this.player.crumbsLeft > 0) {
 			this.alertText.text = "YOU DIED\n\nYOU LOSE ALL YOUR CRUMBS";
 			this.STAGE = 2;
-			this.finishLevel(-this.player.crumbsLeft);			
+			this.finishLevel(-this.player.crumbsLeft);
 		} else {
 			this.alertText.text = "YOU DIED WITH NO CRUMBS\n\nGAME OVER";
 			this.STAGE = 2;
 			this.game.time.events.add(2000, function() {
 				this.finishGame();
 			}, this);
-
 		}
 
 	},
@@ -524,6 +492,7 @@ TopDownGame.Game.prototype = {
 	},
 
 	updateMarkerDirection: function(player, marker) {
+		// for debugging, if the marker sprite isn't none we can change its frame
 		var changeSprite = (marker.key == 'none');
 
 		if (player.direction == 'up') {
@@ -548,11 +517,13 @@ TopDownGame.Game.prototype = {
 
 	finishLevel: function(extraCrumbs) {
 		// fade to black
-		this.game.add.tween(this.black).to( { alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(this.black).to({
+			alpha: 1
+		}, 1000, Phaser.Easing.Linear.None, true);
 
 		// reset level after 2s
 		this.game.time.events.add(2000, function() {
-    		this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft + extraCrumbs); // levelnumber, crumbsleft
+			this.state.start('Game', true, false, this.LEVEL + 1, this.player.crumbsLeft + extraCrumbs); // levelnumber, crumbsleft
 		}, this);
 	},
 
@@ -562,9 +533,11 @@ TopDownGame.Game.prototype = {
 		// fade in
 		this.black.x = this.player.x;
 		this.black.y = this.player.y;
-		this.game.add.tween(this.black).to( { alpha: 1}, 1000, Phaser.Easing.Linear.None, true);
+		this.game.add.tween(this.black).to({
+			alpha: 1
+		}, 1000, Phaser.Easing.Linear.None, true);
 
-		this.spaceKey.onDown.add(this.goToTitle, this);	
+		this.spaceKey.onDown.add(this.goToTitle, this);
 	},
 
 	goToTitle: function() {

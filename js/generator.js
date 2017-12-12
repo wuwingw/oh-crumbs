@@ -20,13 +20,7 @@ var Generator = (function() {
 		[-1, 0],
 		[0, 1],
 		[0, -1],
-		[1, 0] 
-	]
-
-	// if we start in bottom left corner, can only go N or E
-	var startingDirections = [
-		[-1, 0],
-		[0, 1]
+		[1, 0]
 	]
 
 	var outOfBounds = function(x, y, n) {
@@ -37,7 +31,12 @@ var Generator = (function() {
 	var getAdjacentCells = function(x, y, n) {
 		// given an x, y cord, return the N, E, S, W neighbour coords within the nxn grid
 
-		var neighbourOffsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+		var neighbourOffsets = [
+			[1, 0],
+			[-1, 0],
+			[0, 1],
+			[0, -1]
+		];
 		var toReturn = [];
 
 		for (var i = 0; i < neighbourOffsets.length; i++) {
@@ -63,10 +62,8 @@ var Generator = (function() {
 			var adjacentCells = getAdjacentCells(openCell[0], openCell[1], map.length);
 			var count = 0;
 			for (var j = 0; j < adjacentCells.length; j++) {
-				if (map[adjacentCells[j][0]][adjacentCells[j][1]] == 0
-					|| map[adjacentCells[j][0]][adjacentCells[j][1]] == 2 
-					|| map[adjacentCells[j][0]][adjacentCells[j][1]] == 3)
-					// 2 is treasure; 3 is another fork; both count as being open
+				if (map[adjacentCells[j][0]][adjacentCells[j][1]] == 0 || map[adjacentCells[j][0]][adjacentCells[j][1]] == 2 || map[adjacentCells[j][0]][adjacentCells[j][1]] == 3)
+				// 2 is treasure; 3 is another fork; both count as being open
 					count++;
 			}
 
@@ -80,31 +77,33 @@ var Generator = (function() {
 	};
 
 	var cellEquals = function(a, b) {
+		// takes two (row, col) 'pair's and compares them
 		return a[0] == b[0] && a[1] == b[1];
 	};
 
 	var createMap = function(n, tunnelNo, tunnelMin, tunnelMax) {
+		// n: dimension; tunnelNo: how many tunnels; tunnelMin/Max: tunnel length range
 
 		var map = createGrid(n, 1); // create nxn grid of 1s
-		
+
 		// starting point is bottom left
-		var currentRow = n-1;
+		var currentRow = n - 1;
 		var currentCol = 0;
 		map[currentRow][currentCol] = 0;
 
-		// initialise
+		// choose a random starting direction
 		var currentDirection = allDirections[Math.floor(Math.random() * allDirections.length)];
 
-		var tunnelsLeft = tunnelNo;
-		var openCells = [];
-		var failures = 0;
+		var tunnelsLeft = tunnelNo; // keep track of how many tunnels we've built
+		var openCells = []; // keep track of which cells we've dug (i.e. which are open)
+		var failures = 0; // keep track of how many aborted tunnels we've had
 
 		while (tunnelsLeft > 0 && failures < 50) {
 
 			var previousDirection = currentDirection;
-			var oppositePreviousDirection = [-1*previousDirection[0], -1*previousDirection[1]];
+			var oppositePreviousDirection = [-1 * previousDirection[0], -1 * previousDirection[1]];
 
-			// pick a new direction to go in that isn't the same or the opposite
+			// pick a new direction to go in that isn't the same or the opposite (i.e. is orthogonal)
 			do {
 				currentDirection = allDirections[Math.floor(Math.random() * allDirections.length)];
 			} while (currentDirection == previousDirection || currentDirection == oppositePreviousDirection);
@@ -116,7 +115,7 @@ var Generator = (function() {
 			var dugLength = -1; // how many cells we've actually dug
 			var dugCells = []; // remember the cells we've dug
 			var lastOpenCell = [currentRow, currentCol]; // keep track of the last open cell in this tunnel
-			
+
 			while (dugLength < length) {
 
 				// check how many NESW neighbour cells are already open
@@ -126,13 +125,14 @@ var Generator = (function() {
 				var nextCell = [currentRow + currentDirection[1], currentCol + currentDirection[0]];
 				var prevCell = [currentRow - currentDirection[1], currentCol - currentDirection[0]];
 				var prevCellIsOpen = false; // whether the previous cell in the tunnel is open
+				
 				for (var i = 0; i < adjacentCells.length; i++) {
 					if (map[adjacentCells[i][0]][adjacentCells[i][1]] == 0) {
 						count++;
 
-						if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], nextCell)) {
+						if (cellEquals([adjacentCells[i][0], adjacentCells[i][1]], nextCell)) {
 							tunnelCount++;
-						} else if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], prevCell)) {
+						} else if (cellEquals([adjacentCells[i][0], adjacentCells[i][1]], prevCell)) {
 							prevCellIsOpen = true;
 							tunnelCount++;
 						}
@@ -153,7 +153,7 @@ var Generator = (function() {
 					lastOpenCell = [currentRow, currentCol];
 					dugLength++;
 				}
-				
+
 				// move
 				currentRow += currentDirection[1];
 				currentCol += currentDirection[0];
@@ -185,19 +185,17 @@ var Generator = (function() {
 		}
 
 		// place treasure somewhere in top right quadrant
-		var halfN = Math.ceil(n/2);
+		var halfN = Math.ceil(n / 2);
 		var randomCell;
 		var failures = 0;
-		console.log(openCells);
 		do {
 			randomCell = openCells[Math.floor(Math.random() * openCells.length)];
-			failures++;			
+			failures++;
 		} while ((failures < 100) && (randomCell[0] > halfN || randomCell[1] < halfN));
 
 		map[randomCell[0]][randomCell[1]] = 2
 		console.log("treasure at " + randomCell[0] + ", " + randomCell[1]);
 
-		
 		// mark forks
 		map = markForks(map, openCells);
 
