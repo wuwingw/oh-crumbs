@@ -473,7 +473,6 @@ TopDownGame.Game.prototype = {
 			this.fog.anchor.setTo(0.5);
 			this.fog.alpha = 0;
 			this.behindPlayerGroup.add(this.fog);
-			this.game.add.tween(this.fog).to( { alpha: 1}, 100, Phaser.Easing.Linear.None, true);
 
 		} else { // already found treasure; treat it like a fork marker
 
