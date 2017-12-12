@@ -254,9 +254,8 @@ TopDownGame.Game.prototype = {
 
 		if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) {
 			// the enemy is touching a fork
-
-			// only change direction when we reach the centre of the fork
-			if (marker.direction && (Math.abs(enemy.x - marker.x) < this.EPSILON) && (Math.abs(enemy.y - marker.y)) < this.EPSILON) {
+			// only change direction when enemy is inside marker
+			if (Phaser.Rectangle.containsRect(enemy.body, marker.body)) {
 				enemy.direction = marker.direction;
 			}
 		}, null, this)) {
@@ -420,7 +419,6 @@ TopDownGame.Game.prototype = {
         result.forEach(function(element){
                 this.createFromTiledObject(element, this.forkMarkers);
         }, this);
-
 	},
 
 	// find objects in a Tiled layer that contain a property called "type" equal to a certain value
@@ -538,12 +536,6 @@ TopDownGame.Game.prototype = {
 
 	finishGame: function() {
 		this.alertText.text = "YOU REACHED LEVEL " + this.LEVEL + "\n\nplay again?";
-
-		// turn screen black
-		// this.black = this.game.add.sprite(this.player.x, this.player.y, 'black');
-		// this.black.anchor.setTo(0.5);
-		// this.black.alpha = 0;
-		// this.behindTextGroup.add(this.black);
 
 		// fade in
 		this.black.x = this.player.x;
