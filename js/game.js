@@ -64,12 +64,21 @@ TopDownGame.Game.prototype = {
 
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
+
 		this.game.physics.arcade.enable(this.player);
 		this.player.body.setSize(10, 10, 3, 3);
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
+		this.player.lastLR = 'right';
 		this.player.crumbsLeft = this.CRUMBS;
+
+		this.player.animations.add('right_idle',[0]);
+		this.player.animations.add('right',[1,2]);
+		this.player.animations.add('left_idle',[3]);
+		this.player.animations.add('left',[4,5]);
+
+		this.player.animations.play('right_idle');
 
 		// INPUT
 		
@@ -132,24 +141,30 @@ TopDownGame.Game.prototype = {
 		this.player.body.velocity.y = 0;
 		this.player.body.velocity.x = 0;
 
+		var animationSpeed = 7;
+
 		if (this.STAGE < 2) {
 			if(this.cursors.up.isDown || this.wasd.up.isDown) {
 				this.player.body.velocity.y -= this.PLAYER_SPEED;
+				this.player.animations.play(this.player.lastLR, animationSpeed);
 				this.player.direction = 'up';
 			}
 			else if(this.cursors.down.isDown || this.wasd.down.isDown) {
 				this.player.body.velocity.y += this.PLAYER_SPEED;
+				this.player.animations.play(this.player.lastLR, animationSpeed);
 				this.player.direction = 'down';
 			}
 			else if(this.cursors.left.isDown || this.wasd.left.isDown) {
 				this.player.body.velocity.x -= this.PLAYER_SPEED;
-				this.player.frame = 1;
+				this.player.animations.play('left', animationSpeed);
 				this.player.direction = 'left';
+				this.player.lastLR = 'left';
 			}
 			else if(this.cursors.right.isDown || this.wasd.right.isDown) {
 				this.player.body.velocity.x += this.PLAYER_SPEED;
-				this.player.frame = 0;
+				this.player.animations.play('right', animationSpeed);
 				this.player.direction = 'right';
+				this.player.lastLR = 'right';
 			}
 		}
 
@@ -160,6 +175,10 @@ TopDownGame.Game.prototype = {
 			} else {
 				this.goToTitle();
 			}
+		}
+
+		if (this.player.body.velocity.x == 0 && this.player.body.velocity.y == 0) {
+			this.player.animations.play(this.player.lastLR + '_idle');
 		}
 
 		// FOG
@@ -225,6 +244,12 @@ TopDownGame.Game.prototype = {
 		var direction = this.directionToVelocity(enemy.direction);
 		enemy.body.velocity.x = direction[0]*this.ENEMY_SPEED;
 		enemy.body.velocity.y = direction[1]*this.ENEMY_SPEED;
+
+		if (enemy.direction == 'left')
+			enemy.lastLR = 'left';
+		else if (enemy.direction == 'right')
+			enemy.lastLR = 'right';
+		enemy.animations.play(enemy.lastLR, 7);
 
 		if (this.game.physics.arcade.overlap(enemy, this.forkMarkers, function(enemy, marker) {
 			// the enemy is touching a fork
@@ -376,8 +401,12 @@ TopDownGame.Game.prototype = {
  			enemy.body.setSize(12, 12, 2, 2); // more forgiving collision
  			enemy.inRoom = false; // no rooms anymore
  			enemy.direction = 'right'; // will get updated immediately by treasure
+ 			enemy.lastLR = 'right'; // for animation
  			enemy.directionsToTry = this.directionsToTry(enemy.direction);
  			enemy.lastCollisionPosition = [enemy.x, enemy.y];
+
+ 			enemy.animations.add('right', [0,1]);
+ 			enemy.animations.add('left', [2,3]);
 	    }, this);	
 	},
 
