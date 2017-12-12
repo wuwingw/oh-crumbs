@@ -4,8 +4,8 @@ TopDownGame.Game = function(){};
 
 TopDownGame.Game.prototype = {
 
-	PLAYER_SPEED: 80, // player movement speed
-	ENEMY_SPEED: 40, // enemy movement speed
+	PLAYER_SPEED: 70, // player movement speed
+	ENEMY_SPEED: 35, // enemy movement speed
 	EPSILON: 2, // used for enemy fork collision 
 	STAGE: 0, // 0: finding treasure, 1: found treasure, 2: dead/found door
 	CRUMBS: 3, // starting number of crumbs
@@ -15,7 +15,7 @@ TopDownGame.Game.prototype = {
 	init: function(levelNumber, crumbsLeft) {
 		if (levelNumber !== undefined) {
 			this.LEVEL = levelNumber;
-			this.ENEMY_SPEED = Math.min(40 + (levelNumber * 3), 80); // enemy moves faster as you go
+			this.ENEMY_SPEED = Math.min(35 + (levelNumber * 3), 65); // enemy moves faster as you go
 		}
 		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
