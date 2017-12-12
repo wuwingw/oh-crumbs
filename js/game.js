@@ -5,17 +5,17 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 80, // player movement speed
-	ENEMY_SPEED: 60, // enemy movement speed
+	ENEMY_SPEED: 50, // enemy movement speed
 	EPSILON: 2, // used for enemy fork collision 
 	STAGE: 0, // 0: finding treasure, 1: found treasure, 2: dead/found door
-	CRUMBS: 4, // starting number of crumbs
+	CRUMBS: 3, // starting number of crumbs
 	LEVEL: 1, // level number
 
 
 	init: function(levelNumber, crumbsLeft) {
 		if (levelNumber !== undefined) {
 			this.LEVEL = levelNumber;
-			this.ENEMY_SPEED = 50 + (levelNumber * 5); // enemy moves faster as you go
+			this.ENEMY_SPEED = Math.min(50 + (levelNumber * 5), 80); // enemy moves faster as you go
 		}
 		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
@@ -27,7 +27,6 @@ TopDownGame.Game.prototype = {
 		// GENERATE LEVEL
 		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(25, 100, 4, 7));
 		console.log(this.levelJSON); // for debugging
-		// this.game.cache.addJSON('levelJSON', null, this.levelJSON);
 		this.load.tilemap('level', null, this.levelJSON, Phaser.Tilemap.TILED_JSON);
 	},
 
@@ -257,7 +256,9 @@ TopDownGame.Game.prototype = {
 			// only change direction when enemy is inside marker
 			if (Phaser.Rectangle.containsRect(enemy.body, marker.body)) {
 				enemy.direction = marker.direction;
-			}
+			} else if (enemy.direction != marker.direction) {
+				this.game.physics.arcade.moveToObject(enemy, marker, 50);
+			} 
 		}, null, this)) {
 
 			// handled inside callback
@@ -396,7 +397,7 @@ TopDownGame.Game.prototype = {
 	    }, this);
 
 	    this.enemies.forEach(function(enemy){
- 			enemy.body.setSize(14, 14, 1, 1); // more forgiving collision
+ 			enemy.body.setSize(12, 12, 2, 2); // more forgiving collision
  			enemy.inRoom = false; // no rooms anymore
  			enemy.direction = 'right'; // will get updated immediately by treasure
  			enemy.directionsToTry = this.directionsToTry(enemy.direction);
@@ -454,7 +455,7 @@ TopDownGame.Game.prototype = {
 
 			treasure.frame = 1; // open the chest
 
-			this.game.time.events.add(3000, function() {
+			this.game.time.events.add(2000, function() {
 				this.createEnemies();
 			}, this);
 
