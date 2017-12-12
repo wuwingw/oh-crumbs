@@ -15,7 +15,7 @@ TopDownGame.Game.prototype = {
 	init: function(levelNumber, crumbsLeft) {
 		if (levelNumber !== undefined) {
 			this.LEVEL = levelNumber;
-			this.ENEMY_SPEED = Math.min(50 + (levelNumber * 5), 80); // enemy moves faster as you go
+			this.ENEMY_SPEED = Math.min(50 + (levelNumber * 3), 80); // enemy moves faster as you go
 		}
 		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
@@ -65,7 +65,7 @@ TopDownGame.Game.prototype = {
 		var result = this.findObjectsByType('playerStart', this.map, 'objectsLayer');
 		this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 		this.game.physics.arcade.enable(this.player);
-		this.player.body.setSize(10, 12, 3, 2);
+		this.player.body.setSize(10, 10, 3, 3);
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
@@ -394,6 +394,10 @@ TopDownGame.Game.prototype = {
         result = this.findObjectsByType('fork', this.map, 'objectsLayer');
         result.forEach(function(element){
                 this.createFromTiledObject(element, this.forkMarkers);
+        }, this);
+
+        this.forkMarkers.forEach(function(marker){
+        	marker.direction = 'right';
         }, this);
 	},
 
