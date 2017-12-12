@@ -468,11 +468,12 @@ TopDownGame.Game.prototype = {
 			this.forkMarkers.add(treasure); // treasure is now a fork marker
 
 			// decrease radius of vision
+			this.fog.kill();
 			this.fog = this.game.add.sprite(player.x, player.y, 'fog_small');
 			this.fog.anchor.setTo(0.5);
 			this.fog.alpha = 0;
-			this.behindTextGroup.add(this.fog);
-			this.game.add.tween(this.fog).to( { alpha: 1}, 500, Phaser.Easing.Linear.None, true);
+			this.behindPlayerGroup.add(this.fog);
+			this.game.add.tween(this.fog).to( { alpha: 1}, 100, Phaser.Easing.Linear.None, true);
 
 		} else { // already found treasure; treat it like a fork marker
 
