@@ -20,7 +20,7 @@ TopDownGame.Title.prototype = {
   },
 
   startGame: function() {
-      this.state.start('Game', true, false, 1, 4); // 1 is level number, 4 is crumbs
+      this.state.start('Game', true, false, 1, 2); // level number, crumbs
   },
 
   update: function() {
@@ -28,7 +28,7 @@ TopDownGame.Title.prototype = {
       this.spaceKey.onDown.add(this.startGame, this);
 
       if(this.game.input.activePointer.justPressed()) {
-        this.game.state.start('Game');
+        this.startGame();
       }
   }
 };
