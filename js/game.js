@@ -69,7 +69,6 @@ TopDownGame.Game.prototype = {
 		this.game.camera.follow(this.player);
 
 		this.player.direction = 'right';
-		this.player.markerQueue = [];
 		this.player.crumbsLeft = this.CRUMBS;
 
 		// INPUT
@@ -179,7 +178,6 @@ TopDownGame.Game.prototype = {
         	this.exitMarkers.forEach(function(marker){
         		if (this.game.physics.arcade.overlap(this.player, marker)) {
     				this.updateMarkerDirection(this.player, marker);
-    				this.addMarkerToQueue(this.player, marker);
         		} else {
         			marker.overlapped = false;
         		}
@@ -220,26 +218,6 @@ TopDownGame.Game.prototype = {
 
 		}
 
-	},
-
-	checkReachedMarker: function(enemy, marker, setInRoomTo) {
-		if (Math.abs(enemy.x - marker.x) < this.EPSILON && Math.abs(enemy.y - marker.y) < this.EPSILON) {
-			// console.log("reached");
-
-			// enemy has got to this marker; onto the next one
-			enemy.body.velocity.x = 0;
-			enemy.body.velocity.y = 0;
-			this.player.markerQueue.shift();
-			enemy.inRoom = setInRoomTo
-			// console.log(enemy.inRoom);
-
-			// if we've just left a room, use marker to decide which way to go
-			if (!enemy.inroom) {
-				enemy.direction = marker.direction;
-				enemy.directionsToTry = this.directionsToTry(enemy.direction);
-				enemy.lastCollisionPosition = [enemy.x, enemy.y];
-			}
-		}
 	},
 
 	moveEnemy: function(enemy) {
@@ -464,14 +442,12 @@ TopDownGame.Game.prototype = {
 			// this.createEnemies(); // time to run!
 			this.enemies = this.game.add.group();
 			this.STAGE = 1; // update game stage
-			player.markerQueue = []; // initialise empty queue
 			this.forkMarkers.add(treasure); // treasure is now a fork marker
 
 			// decrease radius of vision
 			this.fog.kill();
 			this.fog = this.game.add.sprite(player.x, player.y, 'fog_small');
 			this.fog.anchor.setTo(0.5);
-			this.fog.alpha = 0;
 			this.behindPlayerGroup.add(this.fog);
 
 		} else { // already found treasure; treat it like a fork marker
@@ -501,16 +477,6 @@ TopDownGame.Game.prototype = {
 		this.alertText.text = "YOU ESCAPED\n\nYOU FIND 2 MORE CRUMBS";
 		this.STAGE = 2;
 		this.finishLevel(2);
-	},
-
-	addMarkerToQueue: function(player, marker) {
-		if (!marker.overlapped) {
-			player.markerQueue.push(marker);
-
-			marker.overlapped = true;
-			console.log(player.markerQueue);
-			console.log(player.markerQueue.length);
-		}
 	},
 
 	updateMarkerDirection: function(player, marker) {
