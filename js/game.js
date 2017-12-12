@@ -5,7 +5,7 @@ TopDownGame.Game = function(){};
 TopDownGame.Game.prototype = {
 
 	PLAYER_SPEED: 80, // player movement speed
-	ENEMY_SPEED: 50, // enemy movement speed
+	ENEMY_SPEED: 40, // enemy movement speed
 	EPSILON: 2, // used for enemy fork collision 
 	STAGE: 0, // 0: finding treasure, 1: found treasure, 2: dead/found door
 	CRUMBS: 3, // starting number of crumbs
@@ -15,7 +15,7 @@ TopDownGame.Game.prototype = {
 	init: function(levelNumber, crumbsLeft) {
 		if (levelNumber !== undefined) {
 			this.LEVEL = levelNumber;
-			this.ENEMY_SPEED = Math.min(50 + (levelNumber * 3), 80); // enemy moves faster as you go
+			this.ENEMY_SPEED = Math.min(40 + (levelNumber * 3), 80); // enemy moves faster as you go
 		}
 		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
@@ -230,8 +230,8 @@ TopDownGame.Game.prototype = {
 			// the enemy is touching a fork
 			// only change direction when enemy is inside marker
 			if (Phaser.Rectangle.containsRect(enemy.body, marker.body)) {
-				enemy.direction = marker.direction;
-			} else if (enemy.direction != marker.direction) {
+				enemy.direction = marker.data.direction;
+			} else if (enemy.direction != marker.data.direction) {
 				this.game.physics.arcade.moveToObject(enemy, marker, 50);
 			} 
 		}, null, this)) {
@@ -332,19 +332,20 @@ TopDownGame.Game.prototype = {
 		var item;
 		result = this.findObjectsByType('items', this.map, 'objectsLayer');
 		result.forEach(function(element) {
-			this.createFromTiledObject(element, this.items);
+			this.createFromTiledObjectToGroup(element, this.items);
 		}, this);
 	},
 
 	createTreasure: function() {
-		this.treasure = this.game.add.group();
-		this.treasure.enableBody = true;
-
 		result = this.findObjectsByType('treasure', this.map, 'objectsLayer');
 
-	    result.forEach(function(element){
-	     	this.createFromTiledObject(element, this.treasure);
-	    }, this);
+		// expect just one treasure
+		if (result.length > 0) {
+			this.treasure = this.createFromTiledObject(result[0]);
+			this.game.physics.arcade.enable(this.treasure);
+		} else {
+			throw "No treasure object found to create";
+		}
 	},
 
 	createDoors: function() {
@@ -353,7 +354,7 @@ TopDownGame.Game.prototype = {
 	    result = this.findObjectsByType('door', this.map, 'objectsLayer');
 	 
 	    result.forEach(function(element){
-	      this.createFromTiledObject(element, this.doors);
+	      this.createFromTiledObjectToGroup(element, this.doors);
 	    }, this);
 
 	    this.doors.forEach(function(door){
@@ -368,7 +369,7 @@ TopDownGame.Game.prototype = {
 	    result = this.findObjectsByType('enemy', this.map, 'objectsLayer');
 	 
 	    result.forEach(function(element){
-	      this.createFromTiledObject(element, this.enemies);
+	      this.createFromTiledObjectToGroup(element, this.enemies);
 	    }, this);
 
 	    this.enemies.forEach(function(enemy){
@@ -388,16 +389,16 @@ TopDownGame.Game.prototype = {
 
         result = this.findObjectsByType('exit', this.map, 'objectsLayer');
         result.forEach(function(element){
-                this.createFromTiledObject(element, this.exitMarkers);
+                this.createFromTiledObjectToGroup(element, this.exitMarkers);
         }, this);
 
         result = this.findObjectsByType('fork', this.map, 'objectsLayer');
         result.forEach(function(element){
-                this.createFromTiledObject(element, this.forkMarkers);
+                this.createFromTiledObjectToGroup(element, this.forkMarkers);
         }, this);
 
         this.forkMarkers.forEach(function(marker){
-        	marker.direction = 'right';
+        	marker.data.direction = 'right';
         }, this);
 	},
 
@@ -416,13 +417,23 @@ TopDownGame.Game.prototype = {
 		return result;
 	},
 
-	// create a sprite from an object
-	createFromTiledObject: function(element, group) {
+	// create a sprite from an object and add it to group
+	createFromTiledObjectToGroup: function(element, group) {
 		var sprite = group.create(element.x, element.y, element.properties.sprite);
 
 		Object.keys(element.properties).forEach(function(key) {
 			sprite[key] = element.properties[key];
 		});
+	},
+
+	createFromTiledObject: function(element) {
+		var sprite = this.game.add.sprite(element.x, element.y, element.properties.sprite);
+
+		Object.keys(element.properties).forEach(function(key) {
+			sprite[key] = element.properties[key];
+		});
+
+		return sprite;
 	},
 
 	collect: function(player, item) {
@@ -438,7 +449,7 @@ TopDownGame.Game.prototype = {
 				this.createEnemies();
 			}, this);
 
-			this.alertText.text = "TIME TO RUN";
+			this.alertText.text = "YOU FOUND THE TREASURE\n\nTIME TO RUN";
 			this.game.time.events.add(2000, function() {
 				this.alertText.text = "";
 			}, this);
@@ -456,7 +467,7 @@ TopDownGame.Game.prototype = {
 
 		} else { // already found treasure; treat it like a fork marker
 
-			treasure.direction = player.direction;
+			treasure.data.direction = player.direction;
 
 		}
 	},
@@ -484,19 +495,26 @@ TopDownGame.Game.prototype = {
 	},
 
 	updateMarkerDirection: function(player, marker) {
+		var changeSprite = (marker.key == 'none');
+
 		if (player.direction == 'up') {
-			marker.frame = 0;
-			marker.direction = player.direction;
+			if (changeSprite)
+				marker.frame = 0;
+			marker.data.direction = player.direction;
 		} else if (player.direction == 'right') {
-			marker.frame = 1;
-			marker.direction = player.direction;
+			if (changeSprite)
+				marker.frame = 1;
+			marker.data.direction = player.direction;
 		} else if (player.direction == 'down') {
-			marker.frame = 2;
-			marker.direction = player.direction;
+			if (changeSprite)
+				marker.frame = 2;
+			marker.data.direction = player.direction;
 		} else if (player.direction == 'left') {
-			marker.frame = 3;
-			marker.direction = player.direction;
+			if (changeSprite)
+				marker.frame = 3;
+			marker.data.direction = player.direction;
 		}
+
 	},
 
 	finishLevel: function(extraCrumbs) {
