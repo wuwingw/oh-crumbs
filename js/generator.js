@@ -97,7 +97,9 @@ var Generator = (function() {
 
 		var tunnelsLeft = tunnelNo;
 		var openCells = [];
-		while (tunnelsLeft > 0) {
+		var failures = 0;
+
+		while (tunnelsLeft > 0 && failures < 50) {
 
 			var previousDirection = currentDirection;
 			var oppositePreviousDirection = [-1*previousDirection[0], -1*previousDirection[1]];
@@ -111,28 +113,30 @@ var Generator = (function() {
 			var length = Math.ceil(Math.random() * (tunnelMax - tunnelMin)) + tunnelMin;
 
 			// dig the tunnel
-			var dugLength = -1;
+			var dugLength = -1; // how many cells we've actually dug
 			var dugCells = []; // remember the cells we've dug
-			var nextCellIsOpen = false;
-			var startingPoint = [currentRow, currentCol];
-			var lastOpenCell = startingPoint;
+			var lastOpenCell = [currentRow, currentCol]; // keep track of the last open cell in this tunnel
 			
 			while (dugLength < length) {
 
 				// check how many NESW neighbour cells are already open
 				var adjacentCells = getAdjacentCells(currentRow, currentCol, n);
-				var count = 0;
-				var tunnelCount = 0;
+				var count = 0; // number of open neighbour cells
+				var tunnelCount = 0; // counts nextcell and prevcell
 				var nextCell = [currentRow + currentDirection[1], currentCol + currentDirection[0]];
 				var prevCell = [currentRow - currentDirection[1], currentCol - currentDirection[0]];
+				var prevCellIsOpen = false; // whether the previous cell in the tunnel is open
 				for (var i = 0; i < adjacentCells.length; i++) {
 					if (map[adjacentCells[i][0]][adjacentCells[i][1]] == 0) {
 						count++;
 
-						if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], nextCell) || cellEquals([adjacentCells[i][0],adjacentCells[i][1]], prevCell))
+						if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], nextCell)) {
 							tunnelCount++;
+						} else if (cellEquals([adjacentCells[i][0],adjacentCells[i][1]], prevCell)) {
+							prevCellIsOpen = true;
+							tunnelCount++;
+						}
 					}
-
 				}
 
 				var isTunnel = false;
@@ -140,13 +144,14 @@ var Generator = (function() {
 					isTunnel = (Math.random() > 0.75); // quarter chance of being a dead end instead
 				}
 
-				// only dig if the cell has 1 or fewer adjacent open cells, or is a tunnel
-				// and is actually connected
-				if ((count < 2 && count > 0) || isTunnel) {
+				// only dig if the cell has 1 or fewer adjacent open cells, or is a joining tunnel
+				// and is actually connected to previous cell
+				if (prevCellIsOpen && (count < 2 || isTunnel)) {
 					if (map[currentRow][currentCol] != 0)
 						dugCells.push([currentRow, currentCol]);
 					map[currentRow][currentCol] = 0;
 					lastOpenCell = [currentRow, currentCol];
+					dugLength++;
 				}
 				
 				// move
@@ -159,24 +164,22 @@ var Generator = (function() {
 					currentRow -= currentDirection[1];
 					currentCol -= currentDirection[0];
 
-					nextCellIsOpen = false;
-					break;
-				} else {
-					nextCellIsOpen = (map[currentRow][currentCol] == 0);
+					break; // stop this tunnel early
 				}
 
-				dugLength++;
 			}
 
-			// store the cells we've dug
+			// store the cells we've dug in opencells list (used for placing treasure)
 			for (var i = 0; i < dugCells.length; i++)
 				openCells.push([dugCells[i][0], dugCells[i][1]]);
 
 			// only count this as a tunnel if we managed to dig
 			if (dugLength > 0)
 				tunnelsLeft--;
+			else
+				failures++;
 
-			// console.log(tunnelsLeft);
+			// go back to last open cell to start next tunnel
 			currentRow = lastOpenCell[0];
 			currentCol = lastOpenCell[1];
 		}

@@ -25,7 +25,7 @@ TopDownGame.Game.prototype = {
 
 	preload: function() {
 		// GENERATE LEVEL
-		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(25, 100, 4, 7));
+		this.levelJSON = Converter.convertMapToTileMap(Generator.createMap(25, 60, 4, 7));
 		console.log(this.levelJSON); // for debugging
 		this.load.tilemap('level', null, this.levelJSON, Phaser.Tilemap.TILED_JSON);
 	},
