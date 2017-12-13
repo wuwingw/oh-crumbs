@@ -452,7 +452,7 @@ TopDownGame.Game.prototype = {
 				this.createEnemies();
 			}, this);
 
-			this.alertText.text = "YOU FOUND THE TREASURE\n\nTIME TO RUN";
+			this.alertText.text = "YOU FOUND THE TREASURE\n\nTIME TO RUN BACK";
 			this.game.time.events.add(2000, function() {
 				this.alertText.text = "";
 			}, this);
