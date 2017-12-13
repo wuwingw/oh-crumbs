@@ -4,7 +4,7 @@ TopDownGame.Game = function() {};
 
 TopDownGame.Game.prototype = {
 
-	PLAYER_SPEED: 70, // player movement speed
+	PLAYER_SPEED: 65, // player movement speed
 	ENEMY_SPEED: 35, // enemy movement speed
 	EPSILON: 2, // used for enemy fork collision 
 	STAGE: 0, // 0: finding treasure, 1: found treasure, 2: dead/found door
@@ -15,7 +15,7 @@ TopDownGame.Game.prototype = {
 	init: function(levelNumber, crumbsLeft) {
 		if (levelNumber !== undefined) {
 			this.LEVEL = levelNumber;
-			this.ENEMY_SPEED = Math.min(35 + (levelNumber * 3), 65); // enemy moves faster as you go
+			this.ENEMY_SPEED = Math.min(35 + (levelNumber * 3), 59); // enemy moves faster as you go
 		}
 		if (crumbsLeft !== undefined)
 			this.CRUMBS = crumbsLeft;
@@ -117,9 +117,13 @@ TopDownGame.Game.prototype = {
 
 		// for alerts in the middle of the screen
 		this.alertText = this.game.add.bitmapText(this.game.width / 2, this.game.height / 2 + 48, 'pixeled', '', 6);
+		this.alertText.setText("THERE'S TREASURE HERE SOMEWHERE...");
 		this.alertText.anchor.setTo(0.5);
 		this.alertText.align = 'center';
 		this.alertText.fixedToCamera = true;
+		this.game.time.events.add(2000, function() {
+				this.alertText.text = "";
+		}, this);
 
 		// display level number
 		this.levelText = this.game.add.bitmapText(this.game.width - 8, 8, 'pixeled', '', 6);
